@@ -7,35 +7,37 @@ import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoute';
 import AdminDashboard from './AdminDashboard';
 import UserDashboard from './UserDashboard';
+import Mercado from './pages/Mercado'; 
+import Seguridad from './pages/Seguridad';
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Ruta principal: Cuando la URL es "/" muestra la Landing */}
+        {/* Ruta principal */}
         <Route path="/" element={<LandingPage />} />
         
-        {/* Ruta de login: Cuando la URL es "/login" muestra el AuthPage */}
+        {/* Ruta de login */}
         <Route path="/login" element={<AuthPage />} />
 
-        {/* --- (Dashboard para usuarios normales) --- */}
+        <Route path="/mercado" element={<Mercado />} />
+
+        <Route path="/seguridad" element={<Seguridad />} />     
+
+        {/* --- Dashboard para usuarios normales --- */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<UserDashboard />} />
-      </Route>
+        </Route>
 
-        {/* --- (Dashboard para Admins) --- */}
-      <Route element={<AdminRoute />}>
+        {/* --- Dashboard para Admins --- */}
+        <Route element={<AdminRoute />}>
           <Route path="/admin" element={<AdminDashboard />} />
-      </Route>
+        </Route>
 
         {/* --- ZONA PROTEGIDA --- */}
-      {/* Todo lo que pongas dentro de este Route, estará vigilado */}
         <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-
-          {/* Aquí podrías poner más rutas protegidas en el futuro, como /perfil, /ajustes, etc. */}
-
-      </Route>
+          <Route path="/dashboard-general" element={<Dashboard />} />
+        </Route>
 
       </Routes>
     </BrowserRouter>

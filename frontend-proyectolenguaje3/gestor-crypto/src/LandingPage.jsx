@@ -17,23 +17,29 @@ const LandingPage = () => {
       <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <div className="bg-cyan-500 p-1.5 rounded-lg">
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
-              <span className="font-bold text-xl tracking-tight">CryptoManager</span>
-            </div>
+            <Link to="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
+                <div className="bg-cyan-500 p-1.5 rounded-lg shadow-[0_0_10px_rgba(6,182,212,0.5)] group-hover:scale-105 transition-transform">
+                  <TrendingUp className="h-6 w-6 text-white" />
+               </div>
+                <span className="font-bold text-xl tracking-tight text-white group-hover:text-cyan-400 transition-colors">
+                  CryptoManager
+                </span>
+              </Link>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-                <a href="#markets" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Mercados</a>
-                <a href="#features" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">Seguridad</a>
+                <Link to="/mercado" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
+                  <span>Mercado</span>
+                </Link>                
+                <Link to="/seguridad" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
+                       Seguridad
+               </Link>
                 <Link to="/login">
                     <button className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all">
-                     Registro / Iniciar Sesión
+                      Iniciar Sesión
                     </button>
                 </Link>
               </div>
-            </div>
+            </div> 
           </div>
         </div>
       </nav>
@@ -70,9 +76,9 @@ const LandingPage = () => {
                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" /> 
                     </button>
                 </Link>
-              <button className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-8 py-3 rounded-full font-semibold transition-all border border-slate-700">
-                Ver Mercados
-              </button>
+               <Link to="/mercado">
+                    <button className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-8 py-3 rounded-full font-semibold transition-all border border-slate-700">Ver Mercados</button>
+              </Link>
             </div>
           </div>
         </div>
@@ -158,13 +164,61 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
-      <footer className="border-t border-slate-800 py-12 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-slate-500 text-sm">&copy; 2026 CryptoManager. Todos los derechos reservados.</p>
+    {/* --- FOOTER MEJORADO --- */}
+<footer className="border-t border-slate-800 py-16 bg-slate-950 text-slate-400">
+  <div className="max-w-7xl mx-auto px-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 text-left">
+      
+      {/* Columna 1: Branding */}
+      <div className="col-span-1 md:col-span-1">
+        <h3 className="text-white text-xl font-bold mb-4 flex items-center">
+          <span className="text-cyan-400 mr-2">◈</span> CryptoManager
+        </h3>
+        <p className="text-sm leading-relaxed">
+          La plataforma líder para gestionar tus activos digitales con datos en tiempo real y seguridad avanzada.
+        </p>
+      </div>
+
+      {/* Columna 2: Enlaces Rápidos */}
+      <div>
+        <h4 className="text-white font-semibold mb-4">Plataforma</h4>
+        <ul className="space-y-2 text-sm">
+          <li><a href="/" className="hover:text-cyan-400 transition">Inicio</a></li>
+          <li><a href="/mercado" className="hover:text-cyan-400 transition">Mercado</a></li>
+          <li><a href="/dashboard" className="hover:text-cyan-400 transition">Mi Inventario</a></li>
+        </ul>
+      </div>
+
+      {/* Columna 3: Soporte */}
+      <div>
+        <h4 className="text-white font-semibold mb-4">Ayuda</h4>
+        <ul className="space-y-2 text-sm">
+          <li><a href="/seguridad" className="hover:text-cyan-400 transition">Seguridad</a></li>
+          <li><a href="/faq" className="hover:text-cyan-400 transition">Preguntas Frecuentes</a></li>
+          <li><a href="/contacto" className="hover:text-cyan-400 transition">Contacto</a></li>
+        </ul>
+      </div>
+
+      {/* Columna 4: Newsletter o Redes */}
+      <div>
+        <h4 className="text-white font-semibold mb-4">Mantente al día</h4>
+        <div className="flex space-x-4 mb-4">
+          {/* Iconos simulados (puedes usar lucide-react o font-awesome luego) */}
+          <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center hover:bg-cyan-500 cursor-pointer transition">T</div>
+          <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center hover:bg-cyan-500 cursor-pointer transition">X</div>
+          <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center hover:bg-cyan-500 cursor-pointer transition">I</div>
         </div>
-      </footer>
+        <p className="text-xs">Sigue nuestras actualizaciones.</p>
+      </div>
     </div>
+
+      {/* Línea final */}
+      <div className="border-t border-slate-900 pt-8 text-center text-xs">
+      <p>&copy; 2026 CryptoManager. Creado para Proyecto Lenguaje III. Todos los derechos reservados.</p>
+    </div>
+    </div>
+    </footer>
+      </div>
   );
 };
 
