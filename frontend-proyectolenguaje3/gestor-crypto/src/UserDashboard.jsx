@@ -7,7 +7,8 @@ const UserDashboard = () => {
   const [formData, setFormData] = useState({
     currency: '',
     type: 'buy', // 'buy' o 'sell'
-    amount_crypto: ''
+        amount_crypto: '',
+        amount_usd: ''
   });
   const [mensaje, setMensaje] = useState(null);
 
@@ -109,7 +110,19 @@ const UserDashboard = () => {
                             <select 
                                 className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:outline-none"
                                 value={formData.currency}
-                                onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                                onChange={(e) => {
+                                    const newCurrency = e.target.value;
+                                    const sel = criptos.find(c => String(c.id) === String(newCurrency));
+                                    const price = sel && sel.preciousd ? Number(sel.preciousd) : 0;
+                                    let amount_crypto = formData.amount_crypto;
+                                    let amount_usd = formData.amount_usd;
+                                    if (amount_usd && price > 0) {
+                                        amount_crypto = (Number(amount_usd) / price).toString();
+                                    } else if (amount_crypto && price > 0) {
+                                        amount_usd = (Number(amount_crypto) * price).toFixed(2).toString();
+                                    }
+                                    setFormData({...formData, currency: newCurrency, amount_crypto, amount_usd});
+                                }}
                             >
                                 {criptos.map(coin => (
                                     <option key={coin.id} value={coin.id}>{coin.nombrecripto} ({coin.simbolo})</option>
@@ -139,14 +152,45 @@ const UserDashboard = () => {
 
                         <div>
                             <label className="block text-sm font-medium text-slate-400 mb-1">Cantidad</label>
-                            <input 
-                                type="number" 
-                                step="0.00000001"
-                                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:outline-none"
-                                placeholder="0.00"
-                                value={formData.amount_crypto}
-                                onChange={(e) => setFormData({...formData, amount_crypto: e.target.value})}
-                            />
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="block text-xs text-slate-400 mb-1">Cantidad USD</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:outline-none"
+                                        placeholder="USD 0.00"
+                                        value={formData.amount_usd}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            const sel = criptos.find(c => String(c.id) === String(formData.currency));
+                                            const price = sel && sel.preciousd ? Number(sel.preciousd) : 0;
+                                            let crypto = '';
+                                            if (price > 0 && val !== '') crypto = (Number(val) / price).toString();
+                                            setFormData({...formData, amount_usd: val, amount_crypto: crypto});
+                                        }}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs text-slate-400 mb-1">Cantidad Cripto</label>
+                                    <input
+                                        type="number"
+                                        step="0.00000001"
+                                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:outline-none"
+                                        placeholder="0.00000000"
+                                        value={formData.amount_crypto}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            const sel = criptos.find(c => String(c.id) === String(formData.currency));
+                                            const price = sel && sel.preciousd ? Number(sel.preciousd) : 0;
+                                            let usd = '';
+                                            if (price > 0 && val !== '') usd = (Number(val) * price).toFixed(2).toString();
+                                            setFormData({...formData, amount_crypto: val, amount_usd: usd});
+                                        }}
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 rounded-lg shadow-lg shadow-cyan-500/20 transition-all flex justify-center items-center gap-2">

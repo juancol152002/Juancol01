@@ -7,28 +7,71 @@ from django.contrib.auth.models import User
 class CrearTransaccionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaccion
-        # El usuario solo necesita enviar: Qué moneda, Qué tipo (compra/venta) y Cuánto
-        fields = ['currency', 'type', 'amount_crypto'] 
+        # 1. AGREGAMOS 'amount_usd' para que no de error 400 si lo envían
+        fields = ['currency', 'type', 'amount_crypto', 'amount_usd'] 
+        
+        # 2. HACEMOS LOS CAMPOS OPCIONALES (Para permitir enviar uno u otro)
+        extra_kwargs = {
+            'amount_crypto': {'required': False},
+            'amount_usd': {'required': False}
+        }
 
-    def validate_amount_crypto(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("La cantidad debe ser mayor a 0.")
-        return value
+    def validate(self, data):
+        """
+        Aquí validamos:
+        1. Que hayan enviado al menos un monto.
+        2. Que si es VENTA, tengan saldo suficiente.
+        """
+        user = self.context['request'].user
+        
+        # Validación A: ¿Envió algo?
+        if not data.get('amount_crypto') and not data.get('amount_usd'):
+            raise serializers.ValidationError("Error: Debes ingresar un monto en Cripto o en USD.")
+
+        # Validación B: Seguridad para VENTAS
+        if data['type'] == 'sell':
+            moneda = data['currency']
+            
+            # Calculamos cuánto cripto intenta vender realmente
+            cantidad_a_vender = Decimal(0)
+            if data.get('amount_crypto'):
+                cantidad_a_vender = Decimal(data['amount_crypto'])
+            elif data.get('amount_usd'):
+                # Si puso USD, lo convertimos a Cripto para comparar con el saldo
+                cantidad_a_vender = Decimal(data['amount_usd']) / moneda.preciousd
+
+            # Verificamos la Billetera
+            try:
+                wallet = Wallet.objects.get(user=user, currency=moneda)
+                if wallet.balance < cantidad_a_vender:
+                    raise serializers.ValidationError(
+                        f"Saldo insuficiente. Tienes {wallet.balance:.8f} {moneda.simbolo} y quieres vender {cantidad_a_vender:.8f}."
+                    )
+            except Wallet.DoesNotExist:
+                raise serializers.ValidationError(
+                    f"No puedes vender {moneda.simbolo} porque no tienes saldo (Billetera inexistente)."
+                )
+
+        return data
 
     def create(self, validated_data):
-        # 1. Obtenemos la moneda que eligió el usuario
+        """
+        Aquí hacemos el CÁLCULO FINAL antes de guardar en la BD.
+        Si falta un monto, lo calculamos basado en el precio actual.
+        """
         moneda = validated_data['currency']
-        cantidad = validated_data['amount_crypto']
+        precio = moneda.preciousd
 
-        # 2. Calculamos el precio en USD automáticamente
-        # (Precio actual de la moneda * Cantidad solicitada)
-        total_usd = moneda.preciousd * cantidad
+        # Si tengo Cripto pero falta USD -> Calculo USD
+        if validated_data.get('amount_crypto') and not validated_data.get('amount_usd'):
+            validated_data['amount_usd'] = validated_data['amount_crypto'] * precio
+            
+        # Si tengo USD pero falta Cripto -> Calculo Cripto
+        elif validated_data.get('amount_usd') and not validated_data.get('amount_crypto'):
+            validated_data['amount_crypto'] = validated_data['amount_usd'] / precio
 
-        # 3. Creamos la transacción inyectando el total calculado
-        return Transaccion.objects.create(
-            amount_usd=total_usd,
-            **validated_data
-        )
+        # Guardamos
+        return super().create(validated_data)
 
 class TransaccionAdminSerializer(serializers.ModelSerializer):
     # Campos de lectura para mostrar info de forma agradable en la tabla
