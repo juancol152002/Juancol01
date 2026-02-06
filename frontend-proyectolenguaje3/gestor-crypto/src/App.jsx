@@ -10,9 +10,12 @@ import UserDashboard from './UserDashboard';
 import Mercado from './pages/Mercado'; 
 import Seguridad from './pages/Seguridad';
 
+// --- 1. IMPORTA LOS NUEVOS COMPONENTES ---
+
 const App = () => {
   return (
     <BrowserRouter>
+     
       <Routes>
         {/* Ruta principal */}
         <Route path="/" element={<LandingPage />} />
@@ -20,6 +23,9 @@ const App = () => {
         {/* Ruta de login */}
         <Route path="/login" element={<AuthPage />} />
 
+        {/* Aquí es donde Mercado mostrará la tabla que creamos. 
+            Asegúrate de editar el archivo pages/Mercado.jsx e insertar <MarketTable /> ahí.
+        */}
         <Route path="/mercado" element={<Mercado />} />
 
         <Route path="/seguridad" element={<Seguridad />} />     

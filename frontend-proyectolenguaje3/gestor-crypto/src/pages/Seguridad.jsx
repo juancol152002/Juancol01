@@ -102,7 +102,7 @@ const Seguridad = () => {
           <div className="flex gap-4">
              <div className="bg-slate-950 border border-slate-700 px-6 py-3 rounded-lg flex items-center gap-3">
                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm font-mono text-green-400">SISTEMA: OPERATIVO</span>
+                <span className="text-sm font-mono text-green-400">STATUS: ONLINE </span>
              </div>
           </div>
         </div>
