@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Loader2, BarChart3 } from 'lucide-react'; 
+// Busca tu línea de lucide-react y déjala así:
+import { TrendingUp, Loader2, BarChart3, Instagram, Send, MessageCircle } from 'lucide-react';
 import { getMarketData } from '../Services/api';
 
 // --- COMPONENTES ---
@@ -54,20 +55,34 @@ const Mercado = () => {
     <div style={{ backgroundColor: '#050a18', minHeight: '100vh', color: 'white' }}>
       
       {/* --- NAVBAR --- */}
-      <nav className="fixed top-0 w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="bg-cyan-500 p-1.5 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-white" />
-            </div>
-            <span className="font-bold text-xl text-white">CryptoManager</span>
-          </Link>
-          <div className="flex gap-6">
-            <Link to="/mercado" className="text-cyan-400 text-sm font-medium">Mercado</Link>
-            <Link to="/seguridad" className="text-slate-300 hover:text-cyan-400 text-sm font-medium">Seguridad</Link>
-          </div>
-        </div>
-      </nav>
+            <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-16">
+                  <Link to="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
+                      <div className="bg-cyan-500 p-1.5 rounded-lg shadow-[0_0_10px_rgba(6,182,212,0.5)] group-hover:scale-105 transition-transform">
+                        <TrendingUp className="h-6 w-6 text-white" />
+                     </div>
+                      <span className="font-bold text-xl tracking-tight text-white group-hover:text-cyan-400 transition-colors">
+                        CryptoManager
+                      </span>
+                    </Link>
+                  <div className="hidden md:block">
+                    <div className="ml-10 flex items-baseline space-x-8">
+                                   
+                      <Link to="/seguridad" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
+                        Seguridad
+                      </Link>
+                      <Link to="/login">
+                          <button className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all">
+                            Iniciar Sesión
+                          </button>
+                      </Link>
+                    </div>
+                  </div> 
+                </div>
+              </div>
+            </nav>
+      
 
       {/* --- CONTENIDO PRINCIPAL --- */}
       <div className="pt-28 px-4 md:px-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 pb-20">
@@ -169,8 +184,63 @@ const Mercado = () => {
         onClose={() => setIsModalOpen(false)} 
         coin={selectedCoin} 
       />
+      
+      {/* --- FOOTER --- */}
+            <footer className="border-t border-slate-800 py-16 bg-slate-950 text-slate-400">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 text-left">
+                  <div className="col-span-1 md:col-span-1">
+                    <h3 className="text-white text-xl font-bold mb-4 flex items-center">
+                      <span className="text-cyan-400 mr-2">◈</span> CryptoManager
+                    </h3>
+                    <p className="text-sm leading-relaxed">
+                      Gestión avanzada de activos digitales con datos en tiempo real y seguridad Cold Storage.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold mb-4">Plataforma</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li><Link to="/" className="hover:text-cyan-400 transition">Inicio</Link></li>
+                      <li><Link to="/login" className="hover:text-cyan-400 transition">Mi Inventario</Link></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-semibold mb-4">Soporte</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li><Link to="/contacto" className="hover:text-cyan-400 transition">Contacto</Link></li>
+                      <li><Link to="/seguridad" className="hover:text-cyan-400 transition">Centro de seguridad</Link></li>
+                      <li><a href="/faq" className="hover:text-cyan-400 transition">Preguntas Frecuentes</a></li>
+                      <li><Link to="/terminos#terminos" className="hover:text-cyan-400 transition">Términos y condiciones</Link></li>
+                      <li><Link to="/terminos#privacidad" className="hover:text-cyan-400 transition">Política de privacidad</Link></li>
+                    </ul>
+                  </div>
+                  <div className="flex flex-col">
+                    <h3 className="text-white font-bold mb-6">Mantente al día</h3>
+                    <div className="flex gap-4 mb-6">
+                      <SocialIcon href="https://www.instagram.com/danieln0908/" Icon={Instagram} hover="hover:bg-gradient-to-tr hover:from-yellow-500 hover:to-purple-500" />
+                      <SocialIcon href="https://t.me/danieln1304" Icon={Send} hover="hover:bg-[#0088cc] hover:border-[#0088cc] hover:shadow-[0_0_15px_rgba(0,136,204,0.5)]" />
+                      <SocialIcon href="https://wa.me/584122080281" Icon={MessageCircle} hover="hover:bg-emerald-500" />
+                    </div>
+                    <p className="text-slate-500 text-sm">Sigue nuestras actualizaciones.</p>
+                  </div>
+                </div>
+                <div className="border-t border-slate-900 pt-8 text-center text-xs">
+                  <p>&copy; 2026 CryptoManager. Creado para Proyecto Lenguaje III. Todos los derechos reservados.</p>
+                </div>
+              </div>
+            </footer>
+
     </div>
   );
 };
+
+const SocialIcon = ({ href, Icon, hover }) => (
+  <a 
+    href={href} target="_blank" rel="noopener noreferrer"
+    className={`w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-300 border border-slate-700 ${hover}`}
+  >
+    <Icon size={20} />
+  </a>
+);
 
 export default Mercado;
