@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, Facebook, MessageCircle, LineChart, ShieldCheck, RefreshCcw, TrendingUp } from 'lucide-react';
+import { Instagram, Send, MessageCircle, LineChart, ShieldCheck, RefreshCcw, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion'; 
 
@@ -350,24 +350,26 @@ const LandingPage = () => {
             <div>
               <h4 className="text-white font-semibold mb-4">Plataforma</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/" className="hover:text-cyan-400 transition">Inicio</Link></li>
                 <li><Link to="/mercado" className="hover:text-cyan-400 transition">Mercado</Link></li>
-                <li><Link to="/dashboard" className="hover:text-cyan-400 transition">Mi Inventario</Link></li>
+                <li><Link to="/login" className="hover:text-cyan-400 transition">Mi Inventario</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Ayuda</h4>
+              <h4 className="text-white font-semibold mb-4">Soporte</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/seguridad" className="hover:text-cyan-400 transition">Seguridad</Link></li>
                 <li><Link to="/contacto" className="hover:text-cyan-400 transition">Contacto</Link></li>
+                <li><Link to="/seguridad" className="hover:text-cyan-400 transition">Centro de seguridad</Link></li>
+                <li><a href="/faq" className="hover:text-cyan-400 transition">Preguntas Frecuentes</a></li>
+                <li><Link to="/terminos#terminos" className="hover:text-cyan-400 transition">Términos y condiciones</Link></li>
+                <li><Link to="/terminos#privacidad" className="hover:text-cyan-400 transition">Política de privacidad</Link></li>
               </ul>
             </div>
             <div className="flex flex-col">
               <h3 className="text-white font-bold mb-6">Mantente al día</h3>
               <div className="flex gap-4 mb-6">
-                <SocialIcon href="https://instagram.com" Icon={Instagram} hover="hover:bg-gradient-to-tr hover:from-yellow-500 hover:to-purple-500" />
-                <SocialIcon href="https://facebook.com" Icon={Facebook} hover="hover:bg-blue-600" />
-                <SocialIcon href="https://wa.me/tu-numero" Icon={MessageCircle} hover="hover:bg-emerald-500" />
+                <SocialIcon href="https://www.instagram.com/danieln0908/" Icon={Instagram} hover="hover:bg-gradient-to-tr hover:from-yellow-500 hover:to-purple-500" />
+                <SocialIcon href="https://t.me/danieln1304" Icon={Send} hover="hover:bg-[#0088cc] hover:border-[#0088cc] hover:shadow-[0_0_15px_rgba(0,136,204,0.5)]" />
+                <SocialIcon href="https://wa.me/584122080281" Icon={MessageCircle} hover="hover:bg-emerald-500" />
               </div>
               <p className="text-slate-500 text-sm">Sigue nuestras actualizaciones.</p>
             </div>

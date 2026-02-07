@@ -9,6 +9,9 @@ import AdminDashboard from './AdminDashboard';
 import UserDashboard from './UserDashboard';
 import Mercado from './pages/Mercado'; 
 import Seguridad from './pages/Seguridad';
+import Faq from './pages/faq';
+import Contacto from './pages/contacto';
+import Terminos from './pages/terminos';
 
 // --- 1. IMPORTA LOS NUEVOS COMPONENTES ---
 
@@ -28,7 +31,13 @@ const App = () => {
         */}
         <Route path="/mercado" element={<Mercado />} />
 
-        <Route path="/seguridad" element={<Seguridad />} />     
+        <Route path="/seguridad" element={<Seguridad />} />
+
+        <Route path="/faq" element={<Faq />} />
+
+        <Route path="/contacto" element={<Contacto />} />
+
+        <Route path="/terminos" element={<Terminos />} />
 
         {/* --- Dashboard para usuarios normales --- */}
         <Route element={<ProtectedRoute />}>

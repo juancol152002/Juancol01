@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, TrendingUp, Eye, EyeOff } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, User, ArrowRight, TrendingUp, Eye, EyeOff, LogOut } from 'lucide-react';
+
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -100,11 +101,19 @@ const AuthPage = () => {
         <div className="absolute top-0 left-0 w-full h-full bg-grid-white/[0.05]" />
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[100px]" />
         <div className="relative z-10 max-w-lg">
-          <div className="mb-8 inline-flex items-center gap-2 bg-slate-900/50 border border-slate-700 p-2 pr-4 rounded-full backdrop-blur-sm">
-             <div className="bg-cyan-500 p-1.5 rounded-lg"><TrendingUp className="h-5 w-5 text-white" /></div>
-             <span className="font-bold tracking-tight">CryptoManager</span>
+
+          {/* HEADER DEL LADO IZQUIERDO: LOGO Y SALIR */}
+          <div className="flex items-center justify-between mb-12 w-full">
+            <Link to="/" className="inline-flex items-center gap-2 bg-slate-900/50 border border-slate-700 p-2 pr-4 rounded-full backdrop-blur-sm hover:border-cyan-500 transition-colors">
+              <div className="bg-cyan-500 p-1.5 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-white" />
+              </div>
+              <span className="font-bold tracking-tight text-white">CryptoManager</span>
+            </Link>
           </div>
+          
           <h2 className="text-4xl font-extrabold mb-6 leading-tight">Gestiona tus activos con <span className="text-cyan-400">Seguridad Garantizada</span>.</h2>
+        
         </div>
       </div>
 
@@ -115,6 +124,18 @@ const AuthPage = () => {
             <h2 className="text-3xl font-bold mb-2">{isLogin ? 'Bienvenido' : 'Crear Cuenta'}</h2>
             <p className="text-slate-400">{isLogin ? 'Ingresa tus credenciales.' : 'Completa el formulario.'}</p>
           </div>
+
+          {/* ... después del botón de Regístrate gratis ... */}
+          
+          <div className="absolute bottom-8 left-0 w-full text-center text-xs text-slate-600">
+            <p>&copy; 2026 CryptoManager. Creado para Proyecto Lenguaje III. Todos los derechos reservados</p>
+            <div className="flex justify-center gap-4 mt-2">
+                <a href="/terminos#privacidad" className="hover:text-slate-400">Privacidad</a>
+                <a href="/terminos#terminos" className="hover:text-slate-400">Términos</a>
+            </div>
+          </div>
+
+
 
           {/* Mensaje de Error Visual */}
           {error && <div className="mb-4 p-3 bg-red-500/10 text-red-400 rounded-lg text-sm text-center">{error}</div>}
@@ -191,6 +212,7 @@ const AuthPage = () => {
         </div>
       </div>
     </div>
+    
   );
 };
 
