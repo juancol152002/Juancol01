@@ -1,6 +1,4 @@
 import openpyxl # Importamos la librería para Excel
-from django.core.exceptions import ValidationError as DjangoValidationError
-from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.http import HttpResponse # Para devolver el archivo al navegador
 from rest_framework.decorators import action # Para crear la ruta personalizada
 from rest_framework import viewsets, permissions
@@ -19,25 +17,25 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
 from .serializers import CrearTransaccionSerializer
+import yagmail
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 
 class CrearTransaccionView(APIView):
-    permission_classes = [IsAuthenticated] 
+    permission_classes = [IsAuthenticated] # 🔒 Solo usuarios logueados
 
     def post(self, request):
-        # Pasamos el contexto del request para poder acceder a request.user dentro del serializer
-        serializer = CrearTransaccionSerializer(data=request.data, context={'request': request})
+        serializer = CrearTransaccionSerializer(data=request.data)
         
         if serializer.is_valid():
-            # El método .save() del serializer llamará automáticamente a nuestro método .create()
-            # que acabamos de programar arriba con los cálculos matemáticos.
+            # Guardamos la transacción asignándola al usuario que hizo la petición
             serializer.save(user=request.user)
-            
             return Response({
                 "message": "Solicitud creada exitosamente", 
                 "data": serializer.data
             }, status=201)
             
-        # Si falla la validación (saldo insuficiente, falta de datos, etc.), devolvemos el error
         return Response(serializer.errors, status=400)
 
 class AdminTransaccionView(APIView):
@@ -111,104 +109,125 @@ class TransaccionViewSet(viewsets.ModelViewSet):
     serializer_class = TransaccionSerializer
 
     def get_queryset(self):
+        # 1. Filtramos por el usuario logueado
         queryset = Transaccion.objects.filter(user=self.request.user)
+        
+        # 2. Ordenamos: Lo más nuevo primero (-created_at)
         queryset = queryset.order_by('-created_at')
+
+        # 3. (Opcional) Filtro extra: ?type=buy o ?type=sell
         tipo = self.request.query_params.get('type')
         if tipo:
             queryset = queryset.filter(type=tipo)
+
         return queryset
 
     def perform_create(self, serializer):
-        try:
-            # 1. Obtenemos datos básicos
-            user = self.request.user
-            cripto = serializer.validated_data['currency']
-            precio_actual = cripto.preciousd
-            tipo = serializer.validated_data['type']
+        # 1. Obtenemos la cripto y su precio actual
+        cripto_seleccionada = serializer.validated_data['currency']
+        precio_actual = cripto_seleccionada.preciousd
+        
+        # 2. LOGICA INTELIGENTE: ¿Qué nos envió el usuario?
+        
+        # OPCIÓN A: El usuario envió DÓLARES (amount_usd)
+        # Usamos .get() para verificar si existe sin que dé error
+        if serializer.validated_data.get('amount_usd'):
+            monto_usd = serializer.validated_data['amount_usd']
             
-            # Entradas del usuario (puede venir una, la otra, o ninguna)
-            input_usd = serializer.validated_data.get('amount_usd')
-            input_crypto = serializer.validated_data.get('amount_crypto')
-
-            # 2. CÁLCULO MAESTRO: ¿Cuánta Cripto se está moviendo realmente?
-            cantidad_final_crypto = 0
-            cantidad_final_usd = 0
-
-            if input_usd:
-                # Si puso USD, calculamos la cripto
-                cantidad_final_usd = float(input_usd)
-                cantidad_final_crypto = cantidad_final_usd / float(precio_actual)
-            elif input_crypto:
-                # Si puso Cripto, calculamos el USD
-                cantidad_final_crypto = float(input_crypto)
-                cantidad_final_usd = cantidad_final_crypto * float(precio_actual)
-            else:
-                # Si no puso nada
-                raise DRFValidationError({"error": "Debes ingresar un monto en USD o en Criptomonedas."})
-
-            # Imprimimos en consola para depurar (míralo en tu terminal al probar)
-            print(f"DEBUG: Usuario {user} intenta {tipo} {cantidad_final_crypto} {cripto.simbolo}")
-
-            # 3. 🛡️ VALIDACIÓN DE VENTA (EL FILTRO DE SEGURIDAD)
-            if tipo == 'sell':
-                # Buscamos la billetera de forma segura
-                wallet = Wallet.objects.filter(user=user, currency=cripto).first()
-
-                # CASO 1: No tiene billetera (Nunca ha comprado esa moneda)
-                if not wallet:
-                    raise DRFValidationError({
-                        "error": f"No puedes vender {cripto.simbolo} porque no tienes una billetera de esta moneda. ¡Primero debes comprar!"
-                    })
-                
-                # CASO 2: Tiene billetera pero no le alcanza el saldo
-                # Convertimos a float para asegurar la comparación matemática
-                if float(wallet.balance) < cantidad_final_crypto:
-                    raise DRFValidationError({
-                        "error": f"Saldo insuficiente. Tienes {wallet.balance:.8f} {cripto.simbolo} y quieres vender {cantidad_final_crypto:.8f}."
-                    })
-
-            # 4. SI PASÓ TODAS LAS PRUEBAS -> GUARDAMOS
+            # Calculamos cuánta cripto le toca: Dólares / Precio
+            cantidad_calculada = monto_usd / precio_actual
+            
+            # Guardamos calculando la Cripto
             serializer.save(
-                user=user, 
+                user=self.request.user, 
                 status='pending',
-                amount_crypto=cantidad_final_crypto,
-                amount_usd=cantidad_final_usd
+                amount_crypto=cantidad_calculada 
             )
 
-        except DjangoValidationError as e:
-            # Error del modelo (ej. compra mínima)
-            raise DRFValidationError(e.message_dict)
-        except Exception as e:
-            # Si el error ya es nuestro (DRF), lo lanzamos. Si es otro, lo convertimos.
-            if isinstance(e, DRFValidationError):
-                raise e
-            raise DRFValidationError({"error": str(e)})
+        # OPCIÓN B: El usuario envió CRIPTO (amount_crypto) - La forma clásica
+        elif serializer.validated_data.get('amount_crypto'):
+            cantidad = serializer.validated_data['amount_crypto']
+            
+            # Calculamos cuánto es en Dólares: Cantidad * Precio
+            total_calculado = cantidad * precio_actual
+            
+            # Guardamos calculando el USD
+            serializer.save(
+                user=self.request.user, 
+                status='pending',
+                amount_usd=total_calculado
+            )
 
-    # --- EXPORTAR A EXCEL (Déjalo igual) ---
+    # --- NUEVA FUNCIONALIDAD: EXPORTAR A EXCEL ---
     @action(detail=False, methods=['get'])
     def exportar_excel(self, request):
+        # 1. Obtenemos los datos (reutilizando tu lógica de filtros y orden)
         transacciones = self.get_queryset()
+
+        # 2. Creamos el libro de Excel y la hoja activa
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Historial de Transacciones"
+
+        # 3. Definimos los encabezados de las columnas
         headers = ['ID', 'Fecha', 'Tipo', 'Moneda', 'Cantidad', 'Total USD', 'Estado']
         ws.append(headers)
+
+        # 4. Iteramos sobre tus transacciones para llenar las filas
         for t in transacciones:
+            # Formateamos la fecha para que se lea bien en Excel
             fecha_simple = t.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            
             fila = [
                 t.id,
                 fecha_simple,
-                t.get_type_display(),
-                t.currency.simbolo,
-                float(t.amount_crypto) if t.amount_crypto else 0,
-                float(t.amount_usd) if t.amount_usd else 0,
-                t.get_status_display()
+                t.get_type_display(),   # Convierte 'buy' en "Compra" (según tu modelo)
+                t.currency.simbolo,     # Accedemos al símbolo de la relación ForeignKey
+                float(t.amount_crypto), # Convertimos a float para que Excel lo trate como número
+                float(t.amount_usd),
+                t.get_status_display()  # Convierte 'approved' en "Aprobado"
             ]
             ws.append(fila)
+
+        # 5. Preparamos la respuesta HTTP tipo archivo
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
+        # Esto le dice al navegador "Descarga este archivo con este nombre":
         response['Content-Disposition'] = 'attachment; filename="historial_transacciones.xlsx"'
+
+        # 6. Guardamos el libro en la respuesta
         wb.save(response)
         return response
 
+   # formulario
+class ContactoView(APIView):
+    permission_classes = [AllowAny] 
+
+    def post(self, request):
+        nombre = request.data.get('nombre')
+        email_usuario = request.data.get('email')
+        asunto_usuario = request.data.get('asunto')
+        mensaje = request.data.get('mensaje')
+
+        try:
+            # Datos extraídos de tu configuración
+            mi_correo = 'josedaniel0908@gmail.com'
+            mi_password = 'shuv jsce bvhn eppc' 
+
+            yag = yagmail.SMTP(user=mi_correo, password=mi_password)
+            asunto_correo = f"NUEVO MENSAJE DE CONTACTO: {asunto_usuario}"
+            
+            contenido = [
+                f"Nombre: <b>{nombre}</b>",
+                f"Correo: {email_usuario}",
+                "<hr>",
+                f"Mensaje:",
+                mensaje
+            ]
+
+            # Envío del correo
+            yag.send(to=mi_correo, subject=asunto_correo, contents=contenido)
+            return Response({"status": "ok"}, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
