@@ -29,8 +29,29 @@ const Terminos = () => {
           </p>
           
           <div className="flex gap-4 mt-8">
-            <a href="#terminos" className="text-xs bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-full border border-slate-700 transition-all">Términos de Uso</a>
-            <a href="#privacidad" className="text-xs bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 px-4 py-2 rounded-full border border-cyan-500/30 transition-all">Política de Privacidad</a>
+            {/* Botón Términos: Se pone Cian si el hash es #terminos o si no hay hash (por defecto) */}
+            <a 
+              href="#terminos" 
+              className={`text-xs px-4 py-2 rounded-full border transition-all ${
+                hash === '#terminos' || hash === '' 
+                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' 
+                : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
+              }`}
+            >
+              Términos de Uso
+            </a>
+
+            {/* Botón Privacidad: Se pone Cian solo si el hash es #privacidad */}
+            <a 
+              href="#privacidad" 
+              className={`text-xs px-4 py-2 rounded-full border transition-all ${
+                hash === '#privacidad' 
+                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' 
+                : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
+              }`}
+            >
+              Política de Privacidad
+            </a>
           </div>
         </div>
       </div>
