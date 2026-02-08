@@ -11,6 +11,12 @@ from django.contrib.auth.hashers import make_password
 def registrar_usuario(request):
     data = request.data
     try:
+        # Verificar si ya existe un usuario con ese email
+        # CAMBIO: Agregamos esta validación para evitar duplicados.
+        # Buscamos si existe algún usuario en la BD que tenga este mismo correo.
+        if User.objects.filter(email=data['email']).exists():
+            return Response({'error': 'El correo electrónico ya está registrado.'}, status=400)
+
         user = User.objects.create(
             username=data['email'], # Usamos el email como username
             email=data['email'],

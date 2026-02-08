@@ -16,6 +16,29 @@ class CrearTransaccionSerializer(serializers.ModelSerializer):
             'amount_usd': {'required': False}
         }
 
+    def to_internal_value(self, data):
+        # Hacemos una copia para poder modificar
+        data = data.copy()
+
+        # Redondeamos amount_crypto a 18 decimales si viene con más
+        if data.get('amount_crypto'):
+            try:
+                valor = Decimal(str(data['amount_crypto']))
+                # round funciona bien con Decimal
+                data['amount_crypto'] = round(valor, 18)
+            except:
+                pass # Si no es número, dejamos que falle en la validación normal
+        
+        # Redondeamos amount_usd a 2 decimales
+        if data.get('amount_usd'):
+            try:
+                valor = Decimal(str(data['amount_usd']))
+                data['amount_usd'] = round(valor, 2)
+            except:
+                pass
+
+        return super().to_internal_value(data)
+
     def validate(self, data):
         """
         Aquí validamos:
@@ -51,6 +74,21 @@ class CrearTransaccionSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     f"No puedes vender {moneda.simbolo} porque no tienes saldo (Billetera inexistente)."
                 )
+
+        # Validación C: Monto Mínimo ($1 USD)
+        # Esto previene errores 500 en el modelo y da feedback limpio
+        moneda_validacion = data['currency']
+        monto_usd_estimado = Decimal(0)
+
+        if data.get('amount_usd'):
+            monto_usd_estimado = Decimal(data['amount_usd'])
+        elif data.get('amount_crypto'):
+            # Calculamos aprox cuanto es en USD
+            monto_usd_estimado = Decimal(data['amount_crypto']) * moneda_validacion.preciousd
+        
+        # Usamos un margen pequeño de tolerancia por redondos, pero estricto en 1
+        if monto_usd_estimado < 1:
+            raise serializers.ValidationError(f"El monto es muy bajo (${monto_usd_estimado:.2f}). El mínimo es de 1 USD.")
 
         return data
 
@@ -91,6 +129,15 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True}
         }
+
+    # CAMBIO: Agregamos este método para validar que el email no esté repetido.
+    # Django Rest Framework llama automáticamente a métodos validate_<nombre_campo>.
+    def validate_email(self, value):
+        # Verificamos si existe en la BD
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Este correo electrónico ya está registrado.")
+        return value
+
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],

@@ -26,7 +26,7 @@ class CrearTransaccionView(APIView):
     permission_classes = [IsAuthenticated] # 🔒 Solo usuarios logueados
 
     def post(self, request):
-        serializer = CrearTransaccionSerializer(data=request.data)
+        serializer = CrearTransaccionSerializer(data=request.data, context={'request': request})
         
         if serializer.is_valid():
             # Guardamos la transacción asignándola al usuario que hizo la petición
