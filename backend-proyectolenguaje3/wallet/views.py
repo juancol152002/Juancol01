@@ -23,13 +23,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
 class CrearTransaccionView(APIView):
-    permission_classes = [IsAuthenticated] # 🔒 Solo usuarios logueados
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = CrearTransaccionSerializer(data=request.data, context={'request': request})
         
         if serializer.is_valid():
-            # Guardamos la transacción asignándola al usuario que hizo la petición
+            # Guardamos la transacción
             serializer.save(user=request.user)
             return Response({
                 "message": "Solicitud creada exitosamente", 

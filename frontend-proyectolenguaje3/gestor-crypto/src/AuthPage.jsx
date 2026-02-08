@@ -150,19 +150,19 @@ const AuthPage = () => {
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-300">Correo Electrónico</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-                    <input 
-                      type="email" 
-                      name="email" 
-                      value={formData.email} 
-                      onChange={handleChange}
-                      placeholder="nombre@ejemplo.com"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-cyan-500 transition-all"
-                    />
-                  </div>
-                </div>
+  <label className="text-sm font-medium text-slate-300">Usuario o Correo Electrónico</label>
+  <div className="relative">
+    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+    <input 
+      type="text"  // 👈 Usamos text para que acepte 'luis.pv' o 'puebla123@gmail.com'
+      name="email" 
+      value={formData.email} 
+      onChange={handleChange}
+      placeholder="nombre de usuario o email"
+      className="w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-cyan-500 transition-all"
+    />
+  </div>
+</div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-300">Contraseña</label>

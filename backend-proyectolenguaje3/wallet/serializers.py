@@ -4,6 +4,8 @@ from catalogo.models import Criptos
 from decimal import Decimal
 from django.contrib.auth.models import User
 
+
+
 class CrearTransaccionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaccion
@@ -66,9 +68,27 @@ class CrearTransaccionSerializer(serializers.ModelSerializer):
             # Verificamos la Billetera
             try:
                 wallet = Wallet.objects.get(user=user, currency=moneda)
-                if wallet.balance < cantidad_a_vender:
+                
+                # BUSCAMOS LAS VENTAS PENDIENTES DE ESTA MONEDA
+                ventas_pendientes = Transaccion.objects.filter(
+                    user=user,
+                    currency=moneda,
+                    type='sell',
+                    status='pending'
+                )
+                
+                # Sumamos la cantidad de cripto de todas las ventas pendientes
+                cantidad_pendientes = sum(t.amount_crypto for t in ventas_pendientes if t.amount_crypto)
+                
+                # Cantidad total comprometida = Lo que quiere vender AHORA + Lo que YA pidió vender
+                total_comprometido = cantidad_a_vender + cantidad_pendientes
+
+                if wallet.balance < total_comprometido:
                     raise serializers.ValidationError(
-                        f"Saldo insuficiente. Tienes {wallet.balance:.8f} {moneda.simbolo} y quieres vender {cantidad_a_vender:.8f}."
+                        f"Saldo insuficiente. Tienes {wallet.balance:.8f} {moneda.simbolo}. "
+                        f"Intento actual: {cantidad_a_vender:.8f}. "
+                        f"Pendiente en otras solicitudes: {cantidad_pendientes:.8f}. "
+                        f"Total requerido: {total_comprometido:.8f}"
                     )
             except Wallet.DoesNotExist:
                 raise serializers.ValidationError(
@@ -189,9 +209,26 @@ class TransaccionSerializer(serializers.ModelSerializer):
             try:
                 wallet = Wallet.objects.get(user=user, currency=currency_a_vender)
 
-                if wallet.balance < cantidad_a_validar:
+                # BUSCAMOS LAS VENTAS PENDIENTES DE ESTA MONEDA
+                ventas_pendientes = Transaccion.objects.filter(
+                    user=user,
+                    currency=currency_a_vender,
+                    type='sell',
+                    status='pending'
+                )
+                
+                # Sumamos la cantidad de cripto de todas las ventas pendientes
+                cantidad_pendientes = sum(t.amount_crypto for t in ventas_pendientes if t.amount_crypto)
+                
+                # Cantidad total comprometida
+                total_comprometido = cantidad_a_validar + cantidad_pendientes
+
+                if wallet.balance < total_comprometido:
                     raise serializers.ValidationError(
-                        {"error": f"Tu saldo es insuficiente. Tu saldo actual es: {wallet.balance} {currency_a_vender.simbolo}, pero intentas vender {cantidad_a_validar:.8f}"}
+                         {"error": f"Tu saldo es insuficiente. Saldo: {wallet.balance} {currency_a_vender.simbolo}. "
+                                   f"Intentas vender: {cantidad_a_validar:.8f}. "
+                                   f"Pendiente: {cantidad_pendientes:.8f}. "
+                                   f"Total: {total_comprometido:.8f}"}
                     )
             except Wallet.DoesNotExist:
                 raise serializers.ValidationError(
