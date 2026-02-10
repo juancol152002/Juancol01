@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, History, Wallet, ArrowRight, ArrowDownLeft, ArrowUpRight, LogOut } from 'lucide-react';
+import GestionModal from './components/GestionModal';
+import { TrendingUp, History, Wallet, ArrowRight, ArrowDownLeft, ArrowUpRight, LogOut, Download } from 'lucide-react';
 
 const UserDashboard = () => {
     const [criptos, setCriptos] = useState([]);
@@ -11,6 +12,7 @@ const UserDashboard = () => {
         amount_usd: ''
     });
     const [mensaje, setMensaje] = useState(null);
+    const [modalError, setModalError] = useState({ isOpen: false, message: '' });
 
     // 1. Cargar datos iniciales (Monedas e Historial)
     useEffect(() => {
@@ -103,6 +105,44 @@ const UserDashboard = () => {
             setMensaje({ type: 'error', text: 'Error de conexión' });
         }
         setTimeout(() => setMensaje(null), 3000);
+    };
+
+    const handleDownloadExcel = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                setModalError({ isOpen: true, message: "No se encontró token de autenticación. Por favor inicia sesión nuevamente." });
+                return;
+            }
+
+            const response = await fetch('http://127.0.0.1:8000/api/transactions/exportar_excel/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al descargar el reporte');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            // Agregamos un timestamp para que el nombre sea único
+            const date = new Date();
+            const timestamp = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}_${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`;
+            a.download = `historial_transacciones_${timestamp}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+            console.error("Error descargando excel:", error);
+            setModalError({ isOpen: true, message: "Hubo un error al descargar el reporte. Inténtalo de nuevo más tarde." });
+        }
     };
 
     return (
@@ -237,9 +277,17 @@ const UserDashboard = () => {
 
                     {/* --- COLUMNA DERECHA: HISTORIAL --- */}
                     <div className="lg:col-span-2">
-                        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                            <History className="text-cyan-400" /> Historial de Transacciones
-                        </h2>
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold flex items-center gap-2">
+                                <History className="text-cyan-400" /> Historial de Transacciones
+                            </h2>
+                            <button
+                                onClick={handleDownloadExcel}
+                                className="flex items-center gap-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-lg text-sm font-bold border border-emerald-500/20 transition-all"
+                            >
+                                <Download className="h-4 w-4" /> Exportar Excel
+                            </button>
+                        </div>
 
                         <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl">
                             <table className="w-full text-left">
@@ -257,8 +305,8 @@ const UserDashboard = () => {
                                         <tr key={tx.id} className="hover:bg-slate-800/50">
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${tx.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                                        tx.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                                                            'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                                    tx.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                                        'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
                                                     }`}>
                                                     {tx.status === 'pending' ? 'PENDIENTE' : tx.status === 'approved' ? 'APROBADO' : 'RECHAZADO'}
                                                 </span>
@@ -284,6 +332,14 @@ const UserDashboard = () => {
 
                 </div>
             </main>
+
+            <GestionModal
+                isOpen={modalError.isOpen}
+                onClose={() => setModalError({ ...modalError, isOpen: false })}
+                type="error"
+                title="Error de Descarga"
+                message={modalError.message}
+            />
         </div>
     );
 };

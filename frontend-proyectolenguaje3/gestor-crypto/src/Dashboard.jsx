@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  
-  
+
+
   // 1. NUEVO: Creamos un estado para saber si estamos cargando
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const datosGuardados = localStorage.getItem('usuario');
-    
+
     if (datosGuardados) {
       setUser(JSON.parse(datosGuardados));
       setIsLoading(false); // Ya tenemos usuario, dejamos de cargar
@@ -24,9 +24,44 @@ const Dashboard = () => {
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.clear();    
+    localStorage.clear();
     console.log("Sesión cerrada");
     navigate('/login');
+  };
+
+  const handleDownloadExcel = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert("No se encontró token de autenticación");
+        return;
+      }
+
+      const response = await fetch('http://127.0.0.1:8000/api/transactions/exportar_excel/', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al descargar el reporte');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'historial_transacciones.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error("Error descargando excel:", error);
+      alert("Hubo un error al descargar el reporte.");
+    }
   };
 
   // 2. EL GUARDIÁN VISUAL:
@@ -37,16 +72,16 @@ const Dashboard = () => {
   }
 
   // 3. Si llegamos aquí, es porque isLoading es false y ya tenemos usuario.
-  
+
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         {/* Aquí usamos el nombre dinámico. 
             El signo '?' (optional chaining) evita errores si user aún es null */}
         <h1>¡Hola, {user?.name || 'usuario'}! 👋</h1>
-        
+
         <h2>Bienvenido a tu Dashboard</h2>
-                
+
         <button style={styles.button} onClick={handleLogout}>
           Cerrar Sesión
         </button>

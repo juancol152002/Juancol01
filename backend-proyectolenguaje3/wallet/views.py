@@ -200,6 +200,46 @@ class TransaccionViewSet(viewsets.ModelViewSet):
         wb.save(response)
         return response
 
+    # --- NUEVA FUNCIONALIDAD: EXPORTAR TODO (ADMIN) ---
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminUser])
+    def exportar_todo_excel(self, request):
+        # 1. Obtenemos TODAS las transacciones
+        transacciones = Transaccion.objects.all().order_by('-created_at')
+
+        # 2. Creamos el libro de Excel y la hoja activa
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Reporte Global Transacciones"
+
+        # 3. Encabezados (Agregamos Usuario para saber de quien es)
+        headers = ['ID', 'Usuario', 'Fecha', 'Tipo', 'Moneda', 'Cantidad', 'Total USD', 'Estado']
+        ws.append(headers)
+
+        # 4. Iteramos
+        for t in transacciones:
+            fecha_simple = t.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            
+            fila = [
+                t.id,
+                t.user.email, # Agregamos el email del usuario
+                fecha_simple,
+                t.get_type_display(),
+                t.currency.simbolo,
+                float(t.amount_crypto),
+                float(t.amount_usd),
+                t.get_status_display()
+            ]
+            ws.append(fila)
+
+        # 5. Respuesta HTTP
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename="reporte_global_transacciones.xlsx"'
+
+        wb.save(response)
+        return response
+
    # formulario
 class ContactoView(APIView):
     permission_classes = [AllowAny] 
