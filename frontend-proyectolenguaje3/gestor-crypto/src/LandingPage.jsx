@@ -105,7 +105,7 @@ const LandingPage = () => {
             </Link>
             <Link to="/mercado">
               <button className="w-full sm:w-auto bg-slate-800/60 hover:bg-slate-700 backdrop-blur-md border border-slate-700 text-white px-12 py-4 rounded-xl font-semibold transition-colors">
-                Ver Mercados
+                Ver Mercado
               </button>
             </Link>
           </motion.div>
@@ -215,33 +215,52 @@ const LandingPage = () => {
         </div>
       </header>
 
-      {/* --- CARRUSEL INFINITO --- */}
-      <div className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-md relative z-20 overflow-hidden py-10">
-        <p className="text-center text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-8">Mercado Global en Tiempo Real</p>
-        <div className="flex overflow-hidden">
-          <motion.div 
-            className="flex items-center whitespace-nowrap"
-            animate={{ x: ["0%", "-50%"] }} 
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          >
-            {[1, 2].map((group) => (
-              <div key={group} className="flex items-center gap-12 px-6">
-                {tickerAssets.map((coin, index) => (
-                  <div key={index} className="flex items-center gap-4 group cursor-default">
-                    <div className={`w-10 h-10 rounded-full ${coin.color} flex items-center justify-center font-bold text-white text-sm shadow-lg`}>
-                      {coin.icon}
-                    </div>
-                    <span className="text-xl font-bold text-slate-300 group-hover:text-cyan-400 transition-colors uppercase tracking-tight">
-                      {coin.name}
-                    </span>
-                    <span className="text-slate-700 font-bold ml-4">/</span>
-                  </div>
-                ))}
+{/* --- CARRUSEL INFINITO  --- */}
+<div className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-md relative z-20 overflow-hidden pt-10 pb-12"> 
+  <p className="text-center text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">
+    Mercado Global en Tiempo Real
+  </p>
+  
+  <div className="flex w-full overflow-visible"> 
+    <motion.div
+      className="flex items-center"
+      animate={{ x: [0, -1200] }} 
+      transition={{ 
+        duration: 25, 
+        repeat: Infinity, 
+        ease: "linear" 
+      }}
+      style={{ width: "fit-content" }}
+    >
+      {[1, 2, 3, 4].map((group) => (
+        <div key={group} className="flex items-center">
+          {tickerAssets.map((coin, index) => (
+            <div 
+              key={index} 
+              className="flex items-center gap-6 px-12 min-w-[280px] group cursor-pointer"
+            >
+              
+              <div className={`w-12 h-12 rounded-full ${coin.color} flex items-center justify-center font-bold text-white text-base shadow-lg transition-all duration-300 group-hover:scale-150 group-hover:rotate-12 group-hover:shadow-cyan-500/50`}>
+                {coin.icon}
               </div>
-            ))}
-          </motion.div>
+
+              <div className="flex flex-col">
+                <span className="text-base font-bold text-white uppercase tracking-tight transition-all duration-300 group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">
+                  {coin.name}
+                </span>
+                <span className="text-[11px] text-slate-500 font-bold uppercase">
+                  Crypto
+                </span>
+              </div>
+              
+              <span className="ml-12 text-slate-800 font-thin text-2xl">|</span>
+            </div>
+          ))}
         </div>
-      </div>
+      ))}
+    </motion.div>
+  </div>
+</div>
 
       {/* --- FEATURES --- */}
       <section id="features" className="py-24 bg-slate-900 relative">
