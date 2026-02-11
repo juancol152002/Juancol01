@@ -85,4 +85,6 @@ npm run dev
 ```
 Verás un link (usualmente http://localhost:5173). ¡Haz Click para abrirlo!
 
+4. Para la lectura de la base de datos es recomendable emplear el programa DB Browser for SQLite (https://sqlitebrowser.org/)
+
 Listo, ya tienes el sistema andando!!!
