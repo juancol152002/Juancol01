@@ -82,14 +82,33 @@ class AdminTransaccionView(APIView):
 @permission_classes([IsAuthenticated])
 def obtener_dashboard(request):
     user = request.user
-    # Datos simulados (Mock Data)
+    # 1. Obtener las billeteras del usuario con saldo positivo
+    wallets = Wallet.objects.filter(user=user, balance__gt=0).select_related('currency')
+    
+    activos = []
+    balance_total = Decimal('0.00')
+    
+    # 2. Calcular el valor de cada activo y el balance total
+    for w in wallets:
+        precio_actual = w.currency.preciousd or Decimal('0.00')
+        valor_usd = w.balance * precio_actual
+        balance_total += valor_usd
+        
+        activos.append({
+            "nombre": w.currency.nombrecripto,
+            "simbolo": w.currency.simbolo,
+            "cantidad": float(w.balance),
+            "valor": float(round(valor_usd, 2)),
+            "precio_actual": float(precio_actual),
+        })
+    
+    # 3. Ordenar por valor (mayor a menor)
+    activos.sort(key=lambda x: x['valor'], reverse=True)
+    
     datos_portafolio = {
-        "usuario": user.first_name,
-        "balance_total": 15400.00,
-        "activos": [
-            {"nombre": "Bitcoin", "simbolo": "BTC", "cantidad": 0.5, "valor": 22000, "color": "bg-orange-500"},
-            {"nombre": "USDT", "simbolo": "USDT", "cantidad": 400, "valor": 400, "color": "bg-emerald-500"},
-        ]
+        "usuario": user.first_name or user.username,
+        "balance_total": float(round(balance_total, 2)),
+        "activos": activos
     }
     return Response(datos_portafolio)
 

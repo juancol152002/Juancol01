@@ -198,7 +198,7 @@ const Seguridad = () => {
 const SocialIcon = ({ href, Icon, hover }) => (
   <a
     href={href} target="_blank" rel="noopener noreferrer"
-    className={`w - 10 h - 10 rounded - full bg - slate - 800 flex items - center justify - center text - slate - 400 hover: text - white transition - all duration - 300 border border - slate - 700 ${hover} `}
+    className={`w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-300 border border-slate-700 ${hover}`}
   >
     <Icon size={20} />
   </a>

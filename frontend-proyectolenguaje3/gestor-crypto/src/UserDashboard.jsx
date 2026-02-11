@@ -3,11 +3,141 @@ import GestionModal from './components/GestionModal';
 import ProfileModal from './components/ProfileModal';
 import CryptoChart from './components/CryptoChart';
 import logoImg from './assets/components/logo.jpg';
-import { TrendingUp, History, Wallet, ArrowRight, ArrowDownLeft, ArrowUpRight, LogOut, Download, User } from 'lucide-react';
+import { TrendingUp, History, Wallet, ArrowRight, ArrowDownLeft, ArrowUpRight, LogOut, Download, User, DollarSign } from 'lucide-react';
+
+const COLORS = ['#F7931A', '#F3BA2F', '#3C3C3D', '#26A17B', '#627EEA', '#000000', '#222222'];
+const SYMBOL_COLORS = {
+    'BTC': '#F7931A',
+    'DOGE': '#F3BA2F',
+    'ETH': '#627EEA',
+    'USDT': '#26A17B',
+};
+
+const CRYPTO_LOGOS = {
+    'BTC': 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+    'ETH': 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+    'USDT': 'https://cryptologos.cc/logos/tether-usdt-logo.svg',
+    'DOGE': 'https://cryptologos.cc/logos/dogecoin-doge-logo.png',
+};
+
+// --- COMPONENTE DE GRÁFICO MANUAL (SVG) INTERACTIVO ---
+const PortfolioPieChart = ({ data }) => {
+    const [activeIndex, setActiveIndex] = React.useState(null);
+
+    if (!data || data.length === 0) return null;
+
+    const total = data.reduce((sum, item) => sum + item.valor, 0);
+    let cumulativePercent = 0;
+
+    const getCoordinatesForPercent = (percent) => {
+        const x = Math.cos(2 * Math.PI * percent);
+        const y = Math.sin(2 * Math.PI * percent);
+        return [x, y];
+    };
+
+    const activeItem = activeIndex !== null ? data[activeIndex] : null;
+
+    return (
+        <div className="flex flex-col md:flex-row items-center justify-center gap-12 w-full p-6">
+            <div className="relative w-64 h-64">
+                <svg viewBox="-1.1 -1.1 2.2 2.2" className="transform -rotate-90 w-full h-full">
+                    {data.map((slice, index) => {
+                        const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
+                        cumulativePercent += slice.valor / total;
+                        const [endX, endY] = getCoordinatesForPercent(cumulativePercent);
+                        const largeArcFlag = slice.valor / total > 0.5 ? 1 : 0;
+                        const isHovered = activeIndex === index;
+
+                        const pathData = [
+                            `M ${startX} ${startY}`,
+                            `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                            `L 0 0`,
+                        ].join(' ');
+
+                        return (
+                            <path
+                                key={index}
+                                d={pathData}
+                                fill={SYMBOL_COLORS[slice.simbolo] || COLORS[index % COLORS.length]}
+                                className={`transition-all cursor-default ${isHovered ? 'scale-[1.05]' : 'opacity-80'}`}
+                                onMouseEnter={() => setActiveIndex(index)}
+                                onMouseLeave={() => setActiveIndex(null)}
+                                style={{ transformOrigin: '0 0' }}
+                            />
+                        );
+                    })}
+
+                    {/* Fondo del centro (Doughnut) */}
+                    <circle cx="0" cy="0" r="0.75" fill="#0f172a" />
+
+                    {/* Contenido en el centro (Logo e Info) */}
+                    {activeItem ? (
+                        <>
+                            {/* Logo usando SVG image para máxima estabilidad y evitar 'barras' */}
+                            {CRYPTO_LOGOS[activeItem.simbolo] && (
+                                <image
+                                    href={CRYPTO_LOGOS[activeItem.simbolo]}
+                                    x="-0.15"
+                                    y="-0.4"
+                                    width="0.3"
+                                    height="0.3"
+                                    className="transform rotate-90"
+                                    style={{ transformOrigin: '0 0' }}
+                                />
+                            )}
+
+                            {/* Textos usando SVG puro */}
+                            <text x="0" y="0.2" textAnchor="middle" fill="white" className="font-bold text-[0.15px] transform rotate-90" style={{ fontSize: '0.12px' }}>
+                                {activeItem.simbolo}
+                            </text>
+                            <text x="0" y="0.35" textAnchor="middle" fill="#10b981" className="font-bold transform rotate-90" style={{ fontSize: '0.15px' }}>
+                                ${activeItem.valor.toLocaleString()}
+                            </text>
+                            <text x="0" y="0.5" textAnchor="middle" fill="#94a3b8" className="transform rotate-90" style={{ fontSize: '0.08px' }}>
+                                Venta: ${activeItem.precio_actual?.toLocaleString()}
+                            </text>
+                        </>
+                    ) : (
+                        <>
+                            <text x="0" y="-0.05" textAnchor="middle" fill="#64748b" className="font-bold uppercase tracking-widest transform rotate-90" style={{ fontSize: '0.1px' }}>
+                                Total
+                            </text>
+                            <text x="0" y="0.15" textAnchor="middle" fill="white" className="font-bold transform rotate-90" style={{ fontSize: '0.2px' }}>
+                                ${total.toLocaleString()}
+                            </text>
+                        </>
+                    )}
+                </svg>
+            </div>
+
+            {/* Leyenda personalizada */}
+            <div className="flex flex-col gap-3 min-w-[200px]">
+                {data.map((item, index) => (
+                    <div
+                        key={index}
+                        className={`flex items-center justify-between p-2 rounded-lg transition-all ${activeIndex === index ? 'bg-slate-800 ring-1 ring-slate-700' : ''}`}
+                        onMouseEnter={() => setActiveIndex(index)}
+                        onMouseLeave={() => setActiveIndex(null)}
+                    >
+                        <div className="flex items-center gap-3">
+                            <div
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: SYMBOL_COLORS[item.simbolo] || COLORS[index % COLORS.length] }}
+                            />
+                            <span className="text-sm font-bold text-slate-200">{item.simbolo}</span>
+                        </div>
+                        <span className="text-sm text-slate-400 font-mono">${item.valor.toLocaleString()}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const UserDashboard = () => {
     const [criptos, setCriptos] = useState([]);
     const [historial, setHistorial] = useState([]);
+    const [dashboardData, setDashboardData] = useState({ activos: [], balance_total: 0 });
     const [formData, setFormData] = useState({
         currency: '',
         type: 'buy', // 'buy' o 'sell'
@@ -41,6 +171,11 @@ const UserDashboard = () => {
                 const dataHist = await resHist.json();
                 setHistorial(Array.isArray(dataHist) ? dataHist : []);
 
+                // Cargar Dashboard Data
+                const resDash = await fetch('http://127.0.0.1:8000/api/wallet/dashboard/', { headers });
+                const dataDash = await resDash.json();
+                setDashboardData(dataDash);
+
             } catch (error) {
                 console.error("Error cargando datos", error);
             }
@@ -67,15 +202,17 @@ const UserDashboard = () => {
 
             if (response.ok) {
                 setMensaje({ type: 'success', text: '¡Solicitud enviada con éxito!' });
-                // Recargar historial para ver la nueva pendiente
-                const resHist = await fetch('http://127.0.0.1:8000/api/transacciones/historial/', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                // Recargar historial y dashboard
+                const headers = { 'Authorization': `Bearer ${token}` };
+                const resHist = await fetch('http://127.0.0.1:8000/api/transacciones/historial/', { headers });
                 setHistorial(await resHist.json());
+
+                const resDash = await fetch('http://127.0.0.1:8000/api/wallet/dashboard/', { headers });
+                setDashboardData(await resDash.json());
+
             } else {
                 let errorText = 'Error: Verifique los datos';
 
-                // Intentamos extraer el mensaje de error del backend
                 if (data) {
                     if (data.non_field_errors && data.non_field_errors.length > 0) {
                         errorText = data.non_field_errors[0];
@@ -84,7 +221,6 @@ const UserDashboard = () => {
                         errorText = data[0];
                     }
                     else if (typeof data === 'object') {
-                        // Si es un objeto (ej: { amount_crypto: [...] }), tomamos el primer error
                         const keys = Object.keys(data);
                         if (keys.length > 0) {
                             const firstError = data[keys[0]];
@@ -97,12 +233,10 @@ const UserDashboard = () => {
                     }
                 }
 
-                // REQUERIMIENTO: Mensaje específico para falta de saldo
                 if (typeof errorText === 'string') {
                     if (errorText.includes("Saldo insuficiente") || errorText.includes("No tienes saldo") || errorText.includes("No puedes vender")) {
                         errorText = "Usted no posee el saldo que desea vender";
                     }
-                    // REQUERIMIENTO: Mensaje específico para monto mínimo
                     else if (errorText.includes("monto es muy bajo") || errorText.includes("minimo es de 1 USD") || errorText.includes("monto mínimo")) {
                         errorText = "El minimo de compra o venta es de 1 USD";
                     }
@@ -139,7 +273,6 @@ const UserDashboard = () => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            // Agregamos un timestamp para que el nombre sea único
             const date = new Date();
             const timestamp = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}_${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}${date.getSeconds().toString().padStart(2, '0')}`;
             a.download = `historial_transacciones_${timestamp}.xlsx`;
@@ -192,6 +325,72 @@ const UserDashboard = () => {
             </nav>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+                {/* --- SECCIÓN RESUMEN FINANCIERO (SVG SEGURO) --- */}
+                <div className="mb-10 p-6 bg-slate-800/30 border border-slate-700/50 rounded-2xl shadow-xl">
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <DollarSign className="text-cyan-400" /> Resumen Financiero
+                    </h2>
+                    <div className="flex flex-col items-center">
+                        <h3 className="text-lg font-bold mb-4">Distribución de Portafolio</h3>
+                        {dashboardData.activos && dashboardData.activos.length > 0 ? (
+                            <PortfolioPieChart data={dashboardData.activos} />
+                        ) : (
+                            <div className="flex flex-col items-center justify-center p-12 text-slate-500">
+                                <Wallet className="h-12 w-12 mb-2 opacity-20" />
+                                <p>No hay activos aún</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* --- SECCIÓN MIS ACTIVOS (SEGÚN REFERENCIA) --- */}
+                <div className="mb-10">
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <Wallet className="text-cyan-400" /> Mis Activos
+                    </h2>
+
+                    <div className="bg-slate-800/20 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl">
+                        <div className="divide-y divide-slate-800/50">
+                            {dashboardData.activos && dashboardData.activos.length > 0 ? (
+                                dashboardData.activos.map((activo, index) => (
+                                    <div key={index} className="flex flex-col sm:flex-row items-center justify-between p-6 hover:bg-slate-800/30 transition-colors group">
+                                        <div className="flex items-center gap-4 w-full sm:w-auto">
+                                            {/* Borde lateral de color */}
+                                            <div
+                                                className="w-1.5 h-12 rounded-full"
+                                                style={{ backgroundColor: SYMBOL_COLORS[activo.simbolo] || COLORS[index % COLORS.length] }}
+                                            />
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-lg text-slate-100">{activo.simbolo}</span>
+                                                    <span className="text-[10px] bg-slate-700/50 text-slate-400 px-2 py-0.5 rounded border border-slate-600 font-mono">
+                                                        ${activo.precio_actual?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{activo.nombre}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-8 mt-4 sm:mt-0 w-full sm:w-auto justify-between sm:justify-end">
+                                            <div className="text-right">
+                                                <p className="font-mono text-lg text-slate-200">{activo.cantidad.toFixed(activo.simbolo === 'USDT' ? 2 : 6)}</p>
+                                                <p className="text-sm font-bold text-emerald-400">
+                                                    <span className="opacity-50 text-xs mr-1">≈</span>
+                                                    ${activo.valor.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-12 text-center text-slate-500 italic">
+                                    No tienes activos en tu billetera en este momento.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                     {/* --- COLUMNA IZQUIERDA: NUEVA OPERACIÓN --- */}
@@ -375,7 +574,6 @@ const UserDashboard = () => {
 
                 </div>
 
-                {/* Footer movido un poco más abajo con margen superior */}
                 <div className="mt-16 text-center text-xs text-slate-600 pb-4">
                     <p>&copy; 2026 CryptoManager. Creado para Proyecto Lenguaje III. Todos los derechos reservados</p>
                     <div className="flex justify-center gap-4 mt-2">
