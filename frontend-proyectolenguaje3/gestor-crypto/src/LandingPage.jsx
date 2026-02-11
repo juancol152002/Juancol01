@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, Send, MessageCircle, LineChart, ShieldCheck, RefreshCcw, TrendingUp } from 'lucide-react';
+import { Instagram, Send, MessageCircle, LineChart, ShieldCheck, RefreshCcw, TrendingUp, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -142,7 +142,7 @@ const LandingPage = () => {
               </div>
             </motion.div>
 
-            {/* DERECHA: PANEL ANALÍTICO */}
+            {/* DERECHA: EXPLORADOR DE MERCADO */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -159,58 +159,65 @@ const LandingPage = () => {
                     <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
                     <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
                   </div>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Análisis de Portafolio</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Mercado en Tiempo Real</span>
                   <div className="w-10"></div>
                 </div>
 
                 <div className="p-8">
-                  <div className="flex justify-between items-start gap-6 mb-8">
-                    <div className="text-left">
-                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Balance Consolidado</p>
+                  <div className="text-left mb-8">
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Tendencia Global</p>
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-2xl font-black text-white">Explora el Mercado</h3>
+                      <div className="bg-cyan-500/10 text-cyan-400 text-xs font-bold px-2 py-1 rounded-lg border border-cyan-500/20">
+                        Live
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
                       <div className="flex items-center gap-3">
-                        <h3 className="text-3xl font-black text-white">$42,580.00</h3>
-                        <div className="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-2 py-1 rounded-lg border border-emerald-500/20">
-                          +12.5%
-                        </div>
+                        <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-xs">₿</div>
+                        <span className="text-sm font-bold text-white">Bitcoin</span>
                       </div>
+                      <span className="text-sm font-mono text-emerald-400">+$48,250.00</span>
                     </div>
-
-                    <div className="relative w-20 h-20 flex-shrink-0">
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="40" cy="40" r="32" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-indigo-500/20" />
-                        <motion.circle
-                          cx="40" cy="40" r="32" stroke="currentColor" strokeWidth="6" fill="transparent"
-                          strokeDasharray="201.06"
-                          initial={{ strokeDashoffset: 201.06 }}
-                          whileInView={{ strokeDashoffset: 201.06 * (1 - 0.83) }}
-                          transition={{ duration: 1.5, ease: "easeOut" }}
-                          className="text-cyan-400"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-[8px] text-slate-500 font-bold uppercase">Activos</span>
-                        <span className="text-[10px] font-bold text-white">100%</span>
+                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-xs">♦</div>
+                        <span className="text-sm font-bold text-white">Ethereum</span>
                       </div>
+                      <span className="text-sm font-mono text-emerald-400">+$2,415.30</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-xs">$</div>
+                        <span className="text-sm font-bold text-white">Tether</span>
+                      </div>
+                      <span className="text-sm font-mono text-slate-400">$1.00</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center text-white font-bold text-xs">Ð</div>
+                        <span className="text-sm font-bold text-white">Dogecoin</span>
+                      </div>
+                      <span className="text-sm font-mono text-emerald-400">+$0.0825</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xs">X</div>
+                        <span className="text-sm font-bold text-white">XPR Network</span>
+                      </div>
+                      <span className="text-sm font-mono text-emerald-400">+$0.0009</span>
                     </div>
                   </div>
 
-                  <div className="h-28 flex items-end justify-between gap-1.5 mb-8">
-                    {[45, 60, 35, 80, 55, 90, 75, 100, 65, 85].map((h, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ height: 0 }}
-                        whileInView={{ height: `${h}%` }}
-                        transition={{ delay: i * 0.05, duration: 0.8 }}
-                        className="flex-1 bg-gradient-to-t from-cyan-600/40 to-cyan-400 rounded-t-md hover:brightness-125 transition-all cursor-crosshair"
-                      />
-                    ))}
-                  </div>
-
-                  <div className="space-y-3">
-                    <AssetRow icon="₿" name="Bitcoin" amount="0.8524 BTC" value="$35,341.40" percent="83%" color="bg-orange-500" />
-                    <AssetRow icon="♦" name="Ethereum" amount="4.1205 ETH" value="$7,238.60" percent="17%" color="bg-indigo-500" />
-                  </div>
+                  <Link to="/mercado">
+                    <button className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 group">
+                      Ver Precios en Vivo
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </Link>
                 </div>
               </div>
             </motion.div>
@@ -218,52 +225,52 @@ const LandingPage = () => {
         </div>
       </header>
 
-{/* --- CARRUSEL INFINITO  --- */}
-<div className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-md relative z-20 overflow-hidden pt-10 pb-12"> 
-  <p className="text-center text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">
-    Mercado Global en Tiempo Real
-  </p>
-  
-  <div className="flex w-full overflow-visible"> 
-    <motion.div
-      className="flex items-center"
-      animate={{ x: [0, -1200] }} 
-      transition={{ 
-        duration: 25, 
-        repeat: Infinity, 
-        ease: "linear" 
-      }}
-      style={{ width: "fit-content" }}
-    >
-      {[1, 2, 3, 4].map((group) => (
-        <div key={group} className="flex items-center">
-          {tickerAssets.map((coin, index) => (
-            <div 
-              key={index} 
-              className="flex items-center gap-6 px-12 min-w-[280px] group cursor-pointer"
-            >
-              
-              <div className={`w-12 h-12 rounded-full ${coin.color} flex items-center justify-center font-bold text-white text-base shadow-lg transition-all duration-300 group-hover:scale-150 group-hover:rotate-12 group-hover:shadow-cyan-500/50`}>
-                {coin.icon}
-              </div>
+      {/* --- CARRUSEL INFINITO  --- */}
+      <div className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-md relative z-20 overflow-hidden pt-10 pb-12">
+        <p className="text-center text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">
+          Mercado Global en Tiempo Real
+        </p>
 
-              <div className="flex flex-col">
-                <span className="text-base font-bold text-white uppercase tracking-tight transition-all duration-300 group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]">
-                  {coin.name}
-                </span>
-                <span className="text-[11px] text-slate-500 font-bold uppercase">
-                  Crypto
-                </span>
+        <div className="flex w-full overflow-hidden pointer-events-none">
+          <motion.div
+            className="flex items-center"
+            animate={{ x: [0, -1200] }}
+            transition={{
+              duration: 60,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+            style={{ width: "fit-content" }}
+          >
+            {[1, 2, 3, 4].map((group) => (
+              <div key={group} className="flex items-center">
+                {tickerAssets.map((coin, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-6 px-12 min-w-[280px]"
+                  >
+
+                    <div className={`w-12 h-12 rounded-full ${coin.color} flex items-center justify-center font-bold text-white text-base shadow-lg`}>
+                      {coin.icon}
+                    </div>
+
+                    <div className="flex flex-col">
+                      <span className="text-base font-bold text-white uppercase tracking-tight">
+                        {coin.name}
+                      </span>
+                      <span className="text-[11px] text-slate-500 font-bold uppercase">
+                        Crypto
+                      </span>
+                    </div>
+
+                    <span className="ml-12 text-slate-800 font-thin text-2xl">|</span>
+                  </div>
+                ))}
               </div>
-              
-              <span className="ml-12 text-slate-800 font-thin text-2xl">|</span>
-            </div>
-          ))}
+            ))}
+          </motion.div>
         </div>
-      ))}
-    </motion.div>
-  </div>
-</div>
+      </div>
 
       {/* --- FEATURES --- */}
       <section id="features" className="py-24 bg-slate-900 relative">
