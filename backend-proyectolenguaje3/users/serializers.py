@@ -7,7 +7,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['image', 'image_url']
+        fields = ['image', 'image_url', 'last_profile_update']
 
     def get_image_url(self, obj):
         if obj.image:
