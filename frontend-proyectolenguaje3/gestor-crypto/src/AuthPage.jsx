@@ -143,8 +143,8 @@ const AuthPage = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[100px]" />
         <div className="relative z-10 max-w-lg">
           <div className="flex items-center justify-between mb-12 w-full">
-            <Link to="/" className="inline-flex items-center gap-2 bg-slate-900/50 border border-slate-700 p-2 pr-4 rounded-full backdrop-blur-sm hover:border-cyan-500 transition-colors">
-              <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-full object-cover" />
+            <Link to="/" className="inline-flex items-center gap-2 bg-slate-900/50 border border-slate-700 p-2 pr-4 rounded-xl backdrop-blur-sm hover:border-cyan-500 transition-colors">
+              <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover" />
               <span className="font-bold tracking-tight text-white">CryptoManager</span>
             </Link>
           </div>

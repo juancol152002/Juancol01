@@ -34,6 +34,9 @@ def obtener_perfil(request):
     return Response(serializer.data)
 
 # --- ACTUALIZAR PERFIL (NOMBRE E IMAGEN) ---
+from django.utils import timezone
+from datetime import timedelta
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
@@ -44,12 +47,25 @@ def actualizar_perfil(request):
     nombre = request.data.get('nombre')
     imagen = request.FILES.get('image')
     
+    # Solo bloquear si se está intentando cambiar nombre o imagen
+    if nombre or imagen:
+        if profile.last_profile_update:
+            tiempo_transcurrido = timezone.now() - profile.last_profile_update
+            if tiempo_transcurrido < timedelta(hours=72):
+                horas_restantes = int((timedelta(hours=72) - tiempo_transcurrido).total_seconds() // 3600)
+                return Response({
+                    'error': f'Debes esperar 72 horas para cambiar tus datos de perfil nuevamente. Faltan aproximadamente {horas_restantes} horas.'
+                }, status=403)
+
     if nombre:
         user.first_name = nombre
         user.save()
         
     if imagen:
         profile.image = imagen
+        
+    if nombre or imagen:
+        profile.last_profile_update = timezone.now()
         profile.save()
         
     return Response({

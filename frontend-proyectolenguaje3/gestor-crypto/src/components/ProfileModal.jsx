@@ -5,15 +5,19 @@ const ProfileModal = ({ isOpen, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
     const [showPasswords, setShowPasswords] = useState(false);
+    const [showFileError, setShowFileError] = useState(false);
 
     // User Info
     const [userData, setUserData] = useState({
         username: '',
         email: '',
         first_name: '',
-        image: null
+        image: null,
+        last_profile_update: null
     });
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [isLocked, setIsLocked] = useState(false);
+    const [lockMessage, setLockMessage] = useState('');
 
     // Password Change State
     const [passwordData, setPasswordData] = useState({
@@ -46,8 +50,25 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     username: data.username,
                     email: data.email,
                     first_name: data.first_name || '',
-                    image: data.profile?.image || null
+                    image: data.profile?.image || null,
+                    last_profile_update: data.profile?.last_profile_update || null
                 });
+
+                if (data.profile?.last_profile_update) {
+                    const lastUpdate = new Date(data.profile.last_profile_update);
+                    const now = new Date();
+                    const diffMs = now - lastUpdate;
+                    const hoursPassed = diffMs / (1000 * 60 * 60);
+
+                    if (hoursPassed < 72) {
+                        setIsLocked(true);
+                        const remainingHours = Math.ceil(72 - hoursPassed);
+                        setLockMessage(`Debes esperar ${remainingHours} horas para realizar otro cambio.`);
+                    } else {
+                        setIsLocked(false);
+                    }
+                }
+
                 if (data.profile?.image_url) {
                     const imgUrl = data.profile.image_url;
                     setPreviewUrl(imgUrl.startsWith('http') ? imgUrl : `http://127.0.0.1:8000${imgUrl}`);
@@ -61,6 +82,12 @@ const ProfileModal = ({ isOpen, onClose }) => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+            if (!allowedTypes.includes(file.type)) {
+                setShowFileError(true);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+                return;
+            }
             setUserData({ ...userData, image: file });
             setPreviewUrl(URL.createObjectURL(file));
         }
@@ -84,13 +111,14 @@ const ProfileModal = ({ isOpen, onClose }) => {
             });
 
             if (response.ok) {
-                setMessage({ type: 'success', text: 'Perfil actualizado correctamente.' });
-                // Update localStorage to reflect name change in dashboard
-                const localUser = JSON.parse(localStorage.getItem('usuario') || '{}');
-                localUser.first_name = userData.first_name;
-                localStorage.setItem('usuario', JSON.stringify(localUser));
+                setMessage({ type: 'success', text: 'Perfil actualizado. Cerrando sesión para aplicar cambios...' });
 
-                setTimeout(() => setMessage(null), 3000);
+                setTimeout(() => {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('usuario');
+                    window.location.href = '/login';
+                }, 2000);
             } else {
                 setMessage({ type: 'error', text: 'Error al actualizar perfil.' });
             }
@@ -173,13 +201,17 @@ const ProfileModal = ({ isOpen, onClose }) => {
                                 ) : (
                                     <User className="w-16 h-16 text-slate-600" />
                                 )}
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer" onClick={() => fileInputRef.current.click()}>
+                                <div className={`absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`} onClick={() => !isLocked && fileInputRef.current.click()}>
                                     <Upload className="w-6 h-6 text-white" />
                                 </div>
                             </div>
                             <button
-                                onClick={() => fileInputRef.current.click()}
-                                className="absolute bottom-0 right-0 bg-cyan-500 text-slate-950 p-2 rounded-full shadow-lg border-4 border-slate-900 hover:scale-110 transition-transform"
+                                onClick={() => !isLocked && fileInputRef.current.click()}
+                                disabled={isLocked}
+                                className={`absolute bottom-0 right-0 p-2 rounded-full shadow-lg border-4 border-slate-900 transition-all ${isLocked
+                                    ? 'bg-slate-800 text-slate-600 scale-90'
+                                    : 'bg-cyan-500 text-slate-950 hover:scale-110'
+                                    }`}
                             >
                                 <Upload className="w-3 h-3" />
                             </button>
@@ -208,12 +240,24 @@ const ProfileModal = ({ isOpen, onClose }) => {
                                     className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 focus:outline-none focus:border-cyan-500 transition-all font-medium"
                                 />
                             </div>
+                            {isLocked && (
+                                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-start gap-3">
+                                    <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="text-amber-500 font-bold text-xs">Actualización Bloqueada</p>
+                                        <p className="text-amber-500/70 text-[10px] leading-tight mt-1">{lockMessage}</p>
+                                    </div>
+                                </div>
+                            )}
                             <button
                                 onClick={handleUpdateProfile}
-                                disabled={loading}
-                                className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-all border border-slate-700 flex items-center justify-center gap-2"
+                                disabled={loading || isLocked}
+                                className={`w-full font-bold py-3 rounded-xl transition-all border flex items-center justify-center gap-2 ${isLocked
+                                    ? 'bg-slate-800/50 text-slate-500 border-slate-700 cursor-not-allowed'
+                                    : 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700'
+                                    }`}
                             >
-                                <Save className="w-4 h-4" /> Guardar Cambios
+                                <Save className="w-4 h-4" /> {isLocked ? 'Cambios Bloqueados' : 'Guardar Cambios'}
                             </button>
                         </div>
 
@@ -289,6 +333,31 @@ const ProfileModal = ({ isOpen, onClose }) => {
                     </button>
                 </div>
             </div>
+
+            {/* Modal de Error de Archivo */}
+            {showFileError && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-slate-900 border border-red-500/30 w-full max-w-sm rounded-2xl p-6 shadow-2xl border-t-4 border-t-red-500 animate-in zoom-in-95 duration-200">
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                                <AlertCircle className="w-8 h-8 text-red-500" />
+                            </div>
+                            <div className="space-y-2">
+                                <h4 className="text-xl font-bold text-white">Formato no soportado</h4>
+                                <p className="text-slate-400 text-sm leading-relaxed">
+                                    El archivo que intentas subir no es válido. Por favor, selecciona una imagen en formato <span className="text-white font-bold">PNG</span> o <span className="text-white font-bold">JPG/JPEG</span>.
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setShowFileError(false)}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-red-500/20 active:scale-95"
+                            >
+                                Entendido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
