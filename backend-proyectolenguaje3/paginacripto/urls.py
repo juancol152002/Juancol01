@@ -5,6 +5,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.authtoken.views import obtain_auth_token
 from catalogo.views import CriptosViewSet, HistorialPrecioViewSet, CriptoListView, UserHistorialView, CustomTokenObtainPairView
 from wallet.views import WalletViewSet, TransaccionViewSet, RegisterView, AdminTransaccionView, CrearTransaccionView
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r'criptos', CriptosViewSet, basename = 'cripto')
@@ -44,3 +46,6 @@ urlpatterns = [
 
 ]
 
+# Servir archivos multimedia en desarrollo
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

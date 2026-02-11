@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 // Eliminamos el import de emailjs ya que usaremos tu backend
-import { 
-  TrendingUp, Mail, MessageSquare, Send, 
-  Phone, Instagram, MapPin, CheckCircle2, MessageCircle 
+import {
+  TrendingUp, Mail, MessageSquare, Send,
+  Phone, Instagram, MapPin, CheckCircle2, MessageCircle
 } from 'lucide-react';
+import logoImg from '../assets/components/logo.jpg';
 
 const Contacto = () => {
   const form = useRef();
@@ -53,36 +54,34 @@ const Contacto = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-50">
-            {/* --- NAVBAR --- */}
-            <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
-                  <Link to="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
-                      <div className="bg-cyan-500 p-1.5 rounded-lg shadow-[0_0_10px_rgba(6,182,212,0.5)] group-hover:scale-105 transition-transform">
-                        <TrendingUp className="h-6 w-6 text-white" />
-                     </div>
-                      <span className="font-bold text-xl tracking-tight text-white group-hover:text-cyan-400 transition-colors">
-                        CryptoManager
-                      </span>
-                    </Link>
-                  <div className="hidden md:block">
-                    <div className="ml-10 flex items-baseline space-x-8">
-                      <Link to="/mercado" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
-                        <span>Mercado</span>
-                      </Link>                
-                      <Link to="/seguridad" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
-                             Seguridad
-                     </Link>
-                      <Link to="/login">
-                          <button className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all">
-                            Iniciar Sesión
-                          </button>
-                      </Link>
-                    </div>
-                  </div> 
-                </div>
+      {/* --- NAVBAR --- */}
+      <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
+              <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm group-hover:scale-105 transition-transform" />
+              <span className="font-bold text-xl tracking-tight text-white group-hover:text-cyan-400 transition-colors">
+                CryptoManager
+              </span>
+            </Link>
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-baseline space-x-8">
+                <Link to="/mercado" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
+                  <span>Mercado</span>
+                </Link>
+                <Link to="/seguridad" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
+                  Seguridad
+                </Link>
+                <Link to="/login">
+                  <button className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all">
+                    Iniciar Sesión
+                  </button>
+                </Link>
               </div>
-            </nav>
+            </div>
+          </div>
+        </div>
+      </nav>
 
       <main className="pt-32 pb-20 px-4">
         <div className="max-w-6xl mx-auto">
@@ -97,71 +96,71 @@ const Contacto = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Columna Izquierda: Información de Contacto */}
-<div className="space-y-6">
-  
-  {/* Botón Instagram (NUEVO) */}
-  <a 
-    href="https://www.instagram.com/danieln0908/" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    className="block bg-slate-800/30 p-6 rounded-2xl border border-slate-800 hover:border-pink-500/50 transition-colors group"
-  >
-    <div className="flex items-center gap-4">
-      <div className="bg-gradient-to-tr from-yellow-500/10 to-purple-500/10 p-3 rounded-xl group-hover:from-yellow-500/20 group-hover:to-purple-500/20 transition-colors">
-        <Instagram className="text-pink-400 h-6 w-6" />
-      </div>
-      <div>
-        <h3 className="text-white font-semibold">Instagram del soporte</h3>
-      </div>
-    </div>
-  </a>
+            <div className="space-y-6">
 
-  {/* WhatsApp Soporte */}
-  <a 
-    href="https://wa.me/584122080281" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    className="block bg-slate-800/30 p-6 rounded-2xl border border-slate-800 hover:border-emerald-500/50 transition-colors group"
-  >
-    <div className="flex items-center gap-4">
-      <div className="bg-emerald-500/10 p-3 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
-        <Phone className="text-emerald-400 h-6 w-6" />
-      </div>
-      <div>
-        <h3 className="text-white font-semibold">WhatsApp del soporte</h3>
-      </div>
-    </div>
-  </a>
+              {/* Botón Instagram (NUEVO) */}
+              <a
+                href="https://www.instagram.com/danieln0908/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-slate-800/30 p-6 rounded-2xl border border-slate-800 hover:border-pink-500/50 transition-colors group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-gradient-to-tr from-yellow-500/10 to-purple-500/10 p-3 rounded-xl group-hover:from-yellow-500/20 group-hover:to-purple-500/20 transition-colors">
+                    <Instagram className="text-pink-400 h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">Instagram del soporte</h3>
+                  </div>
+                </div>
+              </a>
 
-  {/* Telegram */}
-  <a 
-    href="https://t.me/danieln1304" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    className="block bg-slate-800/30 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/50 transition-colors group"
-  >
-    <div className="flex items-center gap-4">
-      <div className="bg-blue-500/10 p-3 rounded-xl group-hover:bg-blue-500/20 transition-colors">
-        <Send className="text-blue-400 h-6 w-6" />
-      </div>
-      <div>
-        <h3 className="text-white font-semibold">Telegram del soporte</h3>
-      </div>
-    </div>
-  </a>
+              {/* WhatsApp Soporte */}
+              <a
+                href="https://wa.me/584122080281"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-slate-800/30 p-6 rounded-2xl border border-slate-800 hover:border-emerald-500/50 transition-colors group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-emerald-500/10 p-3 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
+                    <Phone className="text-emerald-400 h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">WhatsApp del soporte</h3>
+                  </div>
+                </div>
+              </a>
 
-  {/* Ubicación */}
-  <div className="bg-slate-800/30 p-6 rounded-2xl border border-slate-800">
-    <div className="flex items-center gap-4">
-      <div className="bg-purple-500/10 p-3 rounded-xl">
-        <MapPin className="text-purple-400 h-6 w-6" />
-      </div>
-      <div>
-        <h3 className="text-white font-semibold">Ubicación</h3>
-        <p className="text-slate-400 text-sm">Maracay, Aragua, Venezuela.</p>
-      </div>
-    </div>
-  </div>
+              {/* Telegram */}
+              <a
+                href="https://t.me/danieln1304"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block bg-slate-800/30 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/50 transition-colors group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-blue-500/10 p-3 rounded-xl group-hover:bg-blue-500/20 transition-colors">
+                    <Send className="text-blue-400 h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">Telegram del soporte</h3>
+                  </div>
+                </div>
+              </a>
+
+              {/* Ubicación */}
+              <div className="bg-slate-800/30 p-6 rounded-2xl border border-slate-800">
+                <div className="flex items-center gap-4">
+                  <div className="bg-purple-500/10 p-3 rounded-xl">
+                    <MapPin className="text-purple-400 h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">Ubicación</h3>
+                    <p className="text-slate-400 text-sm">Maracay, Aragua, Venezuela.</p>
+                  </div>
+                </div>
+              </div>
 
             </div>
 
@@ -178,32 +177,32 @@ const Contacto = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-slate-400 mb-2">Nombre Completo</label>
-                      <input 
-                        name="user_name" 
+                      <input
+                        name="user_name"
                         required
-                        type="text" 
+                        type="text"
                         className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors"
                         placeholder="Tu nombre"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-400 mb-2">Tu Correo</label>
-                      <input 
-                        name="user_email" 
+                      <input
+                        name="user_email"
                         required
-                        type="email" 
+                        type="email"
                         className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors"
                         placeholder="tu@email.com"
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-slate-400 mb-2">Asunto</label>
-                    <input 
+                    <input
                       name="user_subject"
                       required
-                      type="text" 
+                      type="text"
                       className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors"
                       placeholder="Tema de tu consulta"
                     />
@@ -211,7 +210,7 @@ const Contacto = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-slate-400 mb-2">Mensaje</label>
-                    <textarea 
+                    <textarea
                       name="message"
                       required
                       rows="4"
@@ -220,7 +219,7 @@ const Contacto = () => {
                     ></textarea>
                   </div>
 
-                  <button 
+                  <button
                     type="submit"
                     disabled={cargando}
                     className={`w-full ${cargando ? 'bg-slate-700' : 'bg-cyan-500 hover:bg-cyan-600'} text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2`}
@@ -283,7 +282,7 @@ const Contacto = () => {
 };
 
 const SocialIcon = ({ href, Icon, hover }) => (
-  <a 
+  <a
     href={href} target="_blank" rel="noopener noreferrer"
     className={`w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-300 border border-slate-700 ${hover}`}
   >
