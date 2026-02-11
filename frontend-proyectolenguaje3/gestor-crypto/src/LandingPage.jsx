@@ -116,7 +116,7 @@ const LandingPage = () => {
 
         {/* --- SECCIÓN: QUIÉNES SOMOS + PANEL ANALÍTICO --- */}
         <div className="relative z-10 w-full max-w-7xl px-4 mt-60 mb-32 mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-stretch">
 
             {/* IZQUIERDA: TEXTO INFORMATIVO */}
             <motion.div
@@ -124,15 +124,16 @@ const LandingPage = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 1.2 }}
-              className="bg-slate-800/40 backdrop-blur-md border border-slate-700 p-8 md:p-12 rounded-[2rem] shadow-2xl"
+              className="bg-slate-800/40 backdrop-blur-md border border-slate-700 p-8 md:p-12 rounded-[2rem] shadow-2xl flex flex-col justify-center items-start h-full"
             >
-              <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-4 py-1 mb-6">
+              <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-4 py-1.5 mb-8">
                 <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Sobre Nosotros</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight text-left">
-                Tu puente hacia la <span className="text-cyan-400">economía del futuro</span>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-8 leading-tight text-left">
+                Tu puente hacia la <br />
+                <span className="text-cyan-400">economía del futuro</span>
               </h2>
-              <div className="space-y-4 text-slate-300 leading-relaxed text-lg text-left">
+              <div className="space-y-6 text-slate-300 leading-relaxed text-lg text-left">
                 <p>
                   En <strong>CryptoManager</strong>, somos un aliado estratégico para la gestión de tus activos digitales, unificando simplicidad y potencia técnica.
                 </p>
@@ -148,11 +149,11 @@ const LandingPage = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="relative group"
+              className="relative group h-full"
             >
               <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-[2.5rem] blur-2xl group-hover:opacity-100 transition duration-1000"></div>
 
-              <div className="relative bg-[#0f172a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden">
+              <div className="relative bg-[#0f172a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden h-full flex flex-col">
                 <div className="bg-white/5 px-8 py-4 border-b border-white/10 flex items-center justify-between">
                   <div className="flex gap-2">
                     <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
