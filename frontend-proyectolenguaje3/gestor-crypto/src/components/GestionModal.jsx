@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Save, ShieldAlert, LogIn } from 'lucide-react';
+import { X, Save, ShieldAlert, LogIn, CheckCircle2, AlertTriangle, AlertCircle, XCircle } from 'lucide-react';
 
-const GestionModal = ({ isOpen, onClose, coin, title, message, type }) => {
+const GestionModal = ({ isOpen, onClose, coin, title, message, type, onConfirm, confirmText = "Confirmar", cancelText = "Cancelar" }) => {
   const navigate = useNavigate();
   // Nuevo estado para controlar si mostramos el aviso de login
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
@@ -27,6 +27,90 @@ const GestionModal = ({ isOpen, onClose, coin, title, message, type }) => {
               className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl transition-all"
             >
               Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- MODO CONFIRMACIÓN ---
+  if (type === 'confirmation') {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+        <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl overflow-hidden relative animate-in fade-in zoom-in duration-300">
+          <div className="text-center py-4">
+            <div className="bg-amber-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
+              <AlertTriangle className="text-amber-500 w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{title || '¿Estás seguro?'}</h3>
+            <p className="text-slate-400 mb-8 text-sm leading-relaxed">
+              {message || 'Esta acción no se puede deshacer.'}
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl transition-all"
+              >
+                {cancelText}
+              </button>
+              <button
+                onClick={onConfirm}
+                className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-cyan-500/20"
+              >
+                {confirmText}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- MODO ÉXITO (ROJO/RECHAZO) ---
+  if (type === 'success_reject') {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+        <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl overflow-hidden relative animate-in fade-in zoom-in duration-300">
+          <div className="text-center py-4">
+            <div className="bg-red-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+              <XCircle className="text-red-500 w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{title || 'Transacción Rechazada'}</h3>
+            <p className="text-slate-400 mb-6 text-sm leading-relaxed">
+              {message || 'La operación se completó correctamente.'}
+            </p>
+            <button
+              onClick={onClose}
+              className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl transition-all"
+            >
+              Aceptar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- MODO ÉXITO (VERDE/APROBACIÓN) ---
+  if (type === 'success') {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+        <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl overflow-hidden relative animate-in fade-in zoom-in duration-300">
+          <div className="text-center py-4">
+            <div className="bg-emerald-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+              <CheckCircle2 className="text-emerald-500 w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{title || '¡Éxito!'}</h3>
+            <p className="text-slate-400 mb-6 text-sm leading-relaxed">
+              {message || 'La operación se completó correctamente.'}
+            </p>
+            <button
+              onClick={onClose}
+              className="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-xl transition-all"
+            >
+              Aceptar
             </button>
           </div>
         </div>

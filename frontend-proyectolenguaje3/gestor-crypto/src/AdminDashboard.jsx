@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GestionModal from './components/GestionModal';
+import logoImg from './assets/components/logo.jpg';
 import {
     TrendingUp,
     LogOut,
@@ -9,14 +10,24 @@ import {
     Search,
     ArrowUpRight,
     ArrowDownLeft,
-    Download
+    Download,
+    User
 } from 'lucide-react';
+import ProfileModal from './components/ProfileModal';
 
 const AdminDashboard = () => {
     const [transacciones, setTransacciones] = useState([]);
-    const [mensaje, setMensaje] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [modalError, setModalError] = useState({ isOpen: false, message: '' });
+    const [modalState, setModalState] = useState({
+        isOpen: false,
+        type: '', // 'error', 'confirmation', 'success'
+        title: '',
+        message: '',
+        onConfirm: null,
+        confirmText: 'Confirmar',
+        cancelText: 'Cancelar'
+    });
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     // 1. Aca se cargan los datos reales de nuestro backend (Django)
     const cargarTransacciones = async () => {
@@ -27,10 +38,15 @@ const AdminDashboard = () => {
             });
 
             if (response.status === 401) {
-                alert("⚠️ Tu sesión ha expirado. Por favor inicia sesión de nuevo.");
+                setModalState({
+                    isOpen: true,
+                    type: 'error',
+                    title: 'Sesión Expirada',
+                    message: "Tu sesión ha expirado. Por favor inicia sesión de nuevo."
+                });
                 localStorage.removeItem('accessToken'); // Borramos el token viejo
                 localStorage.removeItem('usuario');
-                window.location.href = '/'; // Lo mandamos a la fuerza al Login
+                setTimeout(() => window.location.href = '/', 3000); // Lo mandamos a la fuerza al Login
                 return;
             }
             if (response.ok) {
@@ -55,15 +71,32 @@ const AdminDashboard = () => {
         }
     };
 
+    const [usuario, setUsuario] = useState(null);
+
     useEffect(() => {
+        const localUser = JSON.parse(localStorage.getItem('usuario') || '{}');
+        setUsuario(localUser);
         cargarTransacciones();
     }, []);
 
-    // 2. Funcion para aprobar/rechazar transacciones
-    const procesarTransaccion = async (id, accion) => {
-        const texto = accion === 'aprobar' ? 'APROBAR' : 'RECHAZAR';
-        if (!window.confirm(`¿Estás seguro de ${texto} la transacción #${id}?`)) return;
+    // 2. Funcion para iniciar el proceso de aprobación/rechazo (Abre Modal)
+    const procesarTransaccion = (id, accion) => {
+        const esAprobar = accion === 'aprobar';
+        setModalState({
+            isOpen: true,
+            type: 'confirmation',
+            title: esAprobar ? '¿Aprobar Transacción?' : '¿Rechazar Transacción?',
+            message: esAprobar
+                ? `Esta acción aprobará y completará la transacción #${id} de forma permanente.`
+                : `Esta acción rechazará y cancelará la transacción #${id} de forma permanente.`,
+            confirmText: esAprobar ? 'Aprobar' : 'Rechazar',
+            cancelText: 'Cancelar',
+            onConfirm: () => ejecutarAccion(id, accion)
+        });
+    };
 
+    // 3. Función que realmente llama a la API (Se ejecuta al confirmar en el modal)
+    const ejecutarAccion = async (id, accion) => {
         try {
             const token = localStorage.getItem('accessToken');
             // Llamamos al endpoint con el ID y la acción
@@ -79,26 +112,43 @@ const AdminDashboard = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setMensaje(`✅ ${data.message}`);
-                // Recargamos la lista para quitar la que acabamos de procesar
+                // Éxito: Mostramos modal de éxito
+                setModalState({
+                    isOpen: true,
+                    type: accion === 'aprobar' ? 'success' : 'success_reject',
+                    title: 'Transacción Procesada',
+                    // Eliminamos emojis y usamos iconos en el modal
+                    message: data.message,
+                    onConfirm: () => setModalState({ ...modalState, isOpen: false }) // Cerrar al aceptar
+                });
+                // Recargamos la lista
                 cargarTransacciones();
             } else {
-                alert(`Error: ${data.error}`);
+                // Error de API
+                setModalState({
+                    isOpen: true,
+                    type: 'error',
+                    title: 'Error al procesar',
+                    message: data.error || 'No se pudo completar la acción.'
+                });
             }
 
         } catch (error) {
             console.error("Error procesando:", error);
+            setModalState({
+                isOpen: true,
+                type: 'error',
+                title: 'Error de Conexión',
+                message: 'Verifique su conexión a internet e inténtelo de nuevo.'
+            });
         }
-
-
-        setTimeout(() => setMensaje(''), 4000);
     };
 
     const handleDownloadGlobalExcel = async () => {
         try {
             const token = localStorage.getItem('accessToken');
             if (!token) {
-                setModalError({ isOpen: true, message: "No se encontró token de autenticación. Por favor inicia sesión nuevamente." });
+                setModalState({ isOpen: true, type: 'error', title: 'Autenticación', message: "No se encontró token de autenticación. Por favor inicia sesión nuevamente." });
                 return;
             }
 
@@ -131,7 +181,7 @@ const AdminDashboard = () => {
 
         } catch (error) {
             console.error("Error descargando reporte global:", error);
-            setModalError({ isOpen: true, message: "Hubo un error al descargar el reporte global. Inténtalo de nuevo más tarde." });
+            setModalState({ isOpen: true, type: 'error', title: 'Error de Descarga', message: "Hubo un error al descargar el reporte global. Inténtalo de nuevo más tarde." });
         }
     };
 
@@ -143,21 +193,38 @@ const AdminDashboard = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         <div className="flex items-center gap-2">
-                            <div className="bg-cyan-500 p-1.5 rounded-lg">
-                                <TrendingUp className="h-5 w-5 text-white" />
-                            </div>
+                            <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm" />
                             <span className="font-bold text-xl tracking-tight">
                                 CryptoManager <span className="text-slate-500 text-sm font-normal ml-2">| Admin</span>
                             </span>
                         </div>
 
-                        <button
-                            onClick={() => { localStorage.clear(); window.location.href = '/'; }}
-                            className="flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors text-sm font-medium px-3 py-2 rounded-lg hover:bg-slate-800"
-                        >
-                            <LogOut className="h-4 w-4" />
-                            Cerrar Sesión
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setIsProfileOpen(true)}
+                                className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700 group"
+                            >
+                                <div className="text-right hidden sm:block">
+                                    <p className="text-xs font-bold text-white leading-none">{usuario?.name || 'Admin'}</p>
+                                    <p className="text-[10px] text-slate-500 font-medium leading-tight">Administrador</p>
+                                </div>
+                                <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-slate-700 bg-slate-800 flex items-center justify-center group-hover:border-cyan-500 transition-colors">
+                                    {usuario?.avatar ? (
+                                        <img src={usuario.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <User className="h-4 w-4 text-slate-400" />
+                                    )}
+                                </div>
+                            </button>
+                            <div className="h-6 w-px bg-slate-800" />
+                            <button
+                                onClick={() => { localStorage.clear(); window.location.href = '/'; }}
+                                className="flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors text-sm font-medium px-3 py-2 rounded-lg hover:bg-slate-800"
+                            >
+                                <LogOut className="h-4 w-4" />
+                                Cerrar Sesión
+                            </button>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -193,16 +260,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* ALERTA FLOTANTE */}
-                {mensaje && (
-                    <div className={`mb-6 p-4 rounded-xl border flex items-center gap-3 animate-fade-in ${mensaje.type === 'success'
-                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                        : 'bg-red-500/10 border-red-500/20 text-red-400'
-                        }`}>
-                        {mensaje.type === 'success' ? <CheckCircle2 className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
-                        <span className="font-medium">{mensaje.text}</span>
-                    </div>
-                )}
+                {/* NOTE: Eliminamos la alerta roja inline que estaba aquí */}
 
                 {/* TABLA DE TRANSACCIONES */}
                 <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl">
@@ -284,14 +342,31 @@ const AdminDashboard = () => {
                         </div>
                     )}
                 </div>
+
+                {/* Footer movido un poco más abajo con margen superior */}
+                <div className="mt-16 text-center text-xs text-slate-600 pb-4">
+                    <p>&copy; 2026 CryptoManager. Creado para Proyecto Lenguaje III. Todos los derechos reservados</p>
+                    <div className="flex justify-center gap-4 mt-2">
+                        <a href="/terminos#privacidad" className="hover:text-slate-400">Privacidad</a>
+                        <a href="/terminos#terminos" className="hover:text-slate-400">Términos</a>
+                    </div>
+                </div>
             </main>
 
             <GestionModal
-                isOpen={modalError.isOpen}
-                onClose={() => setModalError({ ...modalError, isOpen: false })}
-                type="error"
-                title="Error de Exportación"
-                message={modalError.message}
+                isOpen={modalState.isOpen}
+                onClose={() => setModalState({ ...modalState, isOpen: false })}
+                type={modalState.type || 'error'}
+                title={modalState.title}
+                message={modalState.message}
+                onConfirm={modalState.onConfirm}
+                confirmText={modalState.confirmText}
+                cancelText={modalState.cancelText}
+            />
+
+            <ProfileModal
+                isOpen={isProfileOpen}
+                onClose={() => setIsProfileOpen(false)}
             />
         </div>
     );

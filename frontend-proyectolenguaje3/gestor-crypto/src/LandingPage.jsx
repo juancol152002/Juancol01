@@ -1,10 +1,11 @@
 import React from 'react';
 import { Instagram, Send, MessageCircle, LineChart, ShieldCheck, RefreshCcw, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion'; 
+import { motion } from 'framer-motion';
 
 // Importación de imagen (Asegúrate de que la ruta sea correcta en tu proyecto)
 import bitcoinBg from "./assets/components/bitcoin-bg.jpg";
+import logoImg from "./assets/components/logo.jpg";
 
 const LandingPage = () => {
   // Configuración para el carrusel infinito
@@ -18,41 +19,43 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-50 font-sans selection:bg-cyan-500 selection:text-white">
-      
+
       {/* --- NAVBAR --- */}
       <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
-                <div className="bg-cyan-500 p-1.5 rounded-lg shadow-[0_0_10px_rgba(6,182,212,0.5)] group-hover:scale-105 transition-transform">
-                  <TrendingUp className="h-6 w-6 text-white" />
-               </div>
-                <span className="font-bold text-xl tracking-tight text-white group-hover:text-cyan-400 transition-colors">
-                  CryptoManager
-                </span>
-              </Link>
+              <img
+                src={logoImg}
+                alt="Logo"
+                className="h-8 w-8 rounded-lg shadow-[0_0_10px_rgba(6,182,212,0.3)] group-hover:scale-105 transition-transform object-cover"
+              />
+              <span className="font-bold text-xl tracking-tight text-white group-hover:text-cyan-400 transition-colors">
+                CryptoManager
+              </span>
+            </Link>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
                 <Link to="/mercado" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                   Mercado
-                </Link>                
+                </Link>
                 <Link to="/seguridad" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                   Seguridad
                 </Link>
                 <Link to="/login">
-                    <button className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all">
-                      Iniciar Sesión
-                    </button>
+                  <button className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all">
+                    Iniciar Sesión
+                  </button>
                 </Link>
               </div>
-            </div> 
+            </div>
           </div>
         </div>
       </nav>
 
       {/* --- HERO SECTION --- */}
-      <header 
-        className="relative min-h-screen w-full flex flex-col items-center overflow-visible" 
+      <header
+        className="relative min-h-screen w-full flex flex-col items-center overflow-visible"
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 1)), url(${bitcoinBg})`,
           backgroundSize: 'cover',
@@ -61,7 +64,7 @@ const LandingPage = () => {
         }}
       >
         <div className="pt-48 pb-10 px-4 z-10 text-center w-full">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 bg-slate-800/50 border border-slate-700 backdrop-blur-sm rounded-full px-4 py-1.5 mb-10"
@@ -70,7 +73,7 @@ const LandingPage = () => {
             <span className="text-xs font-medium text-emerald-400 tracking-wide uppercase">Mercado en vivo</span>
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
@@ -82,8 +85,8 @@ const LandingPage = () => {
             </span>
             <br /> sin complicaciones
           </motion.h1>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
@@ -92,7 +95,7 @@ const LandingPage = () => {
             Acceso profesional a los principales activos del mercado global con seguridad de grado bancario.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
@@ -114,7 +117,7 @@ const LandingPage = () => {
         {/* --- SECCIÓN: QUIÉNES SOMOS + PANEL ANALÍTICO --- */}
         <div className="relative z-10 w-full max-w-7xl px-4 mt-60 mb-32 mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            
+
             {/* IZQUIERDA: TEXTO INFORMATIVO */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -140,15 +143,15 @@ const LandingPage = () => {
             </motion.div>
 
             {/* DERECHA: PANEL ANALÍTICO */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} 
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
               className="relative group"
             >
               <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-[2.5rem] blur-2xl group-hover:opacity-100 transition duration-1000"></div>
-              
+
               <div className="relative bg-[#0f172a]/95 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden">
                 <div className="bg-white/5 px-8 py-4 border-b border-white/10 flex items-center justify-between">
                   <div className="flex gap-2">
@@ -174,7 +177,7 @@ const LandingPage = () => {
 
                     <div className="relative w-20 h-20 flex-shrink-0">
                       <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="40" cy="40" r="32" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-indigo-500/20"/>
+                        <circle cx="40" cy="40" r="32" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-indigo-500/20" />
                         <motion.circle
                           cx="40" cy="40" r="32" stroke="currentColor" strokeWidth="6" fill="transparent"
                           strokeDasharray="201.06"
@@ -216,22 +219,27 @@ const LandingPage = () => {
       </header>
 
       {/* --- CARRUSEL INFINITO --- */}
-      <div className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-md relative z-20 overflow-hidden py-10">
+      <div className="border-y border-slate-800 bg-slate-950/80 backdrop-blur-md relative z-20 overflow-hidden py-10 select-none pointer-events-none">
         <p className="text-center text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-8">Mercado Global en Tiempo Real</p>
         <div className="flex overflow-hidden">
-          <motion.div 
+          <motion.div
             className="flex items-center whitespace-nowrap"
-            animate={{ x: ["0%", "-50%"] }} 
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            animate={{ x: ["0%", "-100%"] }}
+            transition={{
+              duration: 500,
+              repeat: Infinity,
+              ease: "linear",
+              repeatType: "loop"
+            }}
           >
-            {[1, 2].map((group) => (
+            {[1, 2, 3, 4].map((group) => (
               <div key={group} className="flex items-center gap-12 px-6">
                 {tickerAssets.map((coin, index) => (
-                  <div key={index} className="flex items-center gap-4 group cursor-default">
+                  <div key={index} className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full ${coin.color} flex items-center justify-center font-bold text-white text-sm shadow-lg`}>
                       {coin.icon}
                     </div>
-                    <span className="text-xl font-bold text-slate-300 group-hover:text-cyan-400 transition-colors uppercase tracking-tight">
+                    <span className="text-xl font-bold text-slate-300 uppercase tracking-tight">
                       {coin.name}
                     </span>
                     <span className="text-slate-700 font-bold ml-4">/</span>
@@ -247,23 +255,23 @@ const LandingPage = () => {
       <section id="features" className="py-24 bg-slate-900 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FeatureCard 
-              Icon={RefreshCcw} 
-              title="Intercambio Instantáneo" 
+            <FeatureCard
+              Icon={RefreshCcw}
+              title="Intercambio Instantáneo"
               desc="Convierte tus USDT a Bitcoin o Ethereum en segundos con la mejor tasa del mercado."
               color="text-cyan-400"
               bgColor="bg-cyan-500/10"
             />
-            <FeatureCard 
-              Icon={ShieldCheck} 
-              title="Custodia Institucional" 
+            <FeatureCard
+              Icon={ShieldCheck}
+              title="Custodia Institucional"
               desc="Almacenamiento en frío (Cold Storage) para garantizar la máxima seguridad de tus fondos."
               color="text-emerald-400"
               bgColor="bg-emerald-500/10"
             />
-            <FeatureCard 
-              Icon={LineChart} 
-              title="Gestión de Portafolio" 
+            <FeatureCard
+              Icon={LineChart}
+              title="Gestión de Portafolio"
               desc="Panel centralizado para ver tu balance en tiempo real e historial de rendimiento."
               color="text-purple-400"
               bgColor="bg-purple-500/10"
@@ -287,7 +295,7 @@ const LandingPage = () => {
               { step: "02", title: "Deposita Fondos", desc: "Recibe USDT o conecta tu cuenta bancaria para cargar saldo instantáneamente." },
               { step: "03", title: "Opera y Gana", desc: "Intercambia activos y monitorea tu crecimiento en tiempo real desde el panel." }
             ].map((item, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -305,18 +313,18 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
-      
+
       {/* --- BANNER DE CIERRE --- */}
       <section className="relative h-[500px] flex items-center justify-center overflow-hidden border-y border-slate-800">
-        <div 
+        <div
           className="absolute inset-0 z-0 bg-fixed bg-cover bg-center"
-          style={{ 
+          style={{
             backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url(${bitcoinBg})`,
-            backgroundAttachment: 'fixed' 
+            backgroundAttachment: 'fixed'
           }}
         />
         <div className="relative z-10 text-center px-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -414,7 +422,7 @@ const AssetRow = ({ icon, name, amount, value, percent, color }) => (
 );
 
 const SocialIcon = ({ href, Icon, hover }) => (
-  <a 
+  <a
     href={href} target="_blank" rel="noopener noreferrer"
     className={`w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-300 border border-slate-700 ${hover}`}
   >

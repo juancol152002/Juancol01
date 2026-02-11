@@ -1,19 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Instagram, Send, MessageCircle, ArrowRight, ShieldCheck, Lock, Globe } from 'lucide-react';
+import logoImg from '../assets/components/logo.jpg';
+import { TrendingUp, Instagram, Send, MessageCircle, ArrowRight, ShieldCheck, Lock, Globe, Eye, AlertTriangle, Fingerprint, Key, ShieldAlert, ChevronRight } from 'lucide-react';
 
 const Seguridad = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans">
-      
+
       {/* --- NAVBAR --- */}
       <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
-              <div className="bg-cyan-500 p-1.5 rounded-lg shadow-[0_0_10px_rgba(6,182,212,0.5)] group-hover:scale-105 transition-transform">
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
+              <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm group-hover:scale-105 transition-transform" />
               <span className="font-bold text-xl tracking-tight text-white group-hover:text-cyan-400 transition-colors">
                 CryptoManager
               </span>
@@ -22,14 +21,14 @@ const Seguridad = () => {
               <div className="ml-10 flex items-baseline space-x-8">
                 <Link to="/mercado" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                   <span>Mercado</span>
-                </Link>                
+                </Link>
                 <Link to="/login">
                   <button className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all">
                     Iniciar Sesión
                   </button>
                 </Link>
               </div>
-            </div> 
+            </div>
           </div>
         </div>
       </nav>
@@ -52,7 +51,7 @@ const Seguridad = () => {
       {/* --- GRID DE CARACTERÍSTICAS CON TUS TEXTOS ORIGINALES --- */}
       <div className="max-w-7xl mx-auto px-4 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          
+
           {/* Tarjeta 1: Encriptación */}
           <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-cyan-500/50 transform hover:-translate-y-2 transition-all duration-300 shadow-lg hover:shadow-cyan-500/10 group">
             <div className="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -94,22 +93,22 @@ const Seguridad = () => {
         <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
           <div className="mb-8 md:mb-0 text-center md:text-left">
             <h2 className="text-2xl font-bold mb-2">Monitoreo en Tiempo Real</h2>
-            
+
             VE
-            
+
             Saltar navegación
             Buscar
-            
-            
-            
+
+
+
             Crear
-            
+
             9+
-            
+
             Imagen del avatar
-            
+
             VE
-            
+
             <p className="text-slate-400">Nuestros sistemas escanean transacciones anómalas 24/7.</p>
           </div>
           <div className="bg-slate-950 border border-slate-700 px-6 py-3 rounded-xl flex items-center gap-3 shadow-inner">
@@ -127,11 +126,11 @@ const Seguridad = () => {
             <p className="text-slate-400 mb-6 text-sm italic">
               "La seguridad es un compromiso compartido entre la plataforma y el usuario."
             </p>
-            <Link 
-              to="/terminos" 
+            <Link
+              to="/terminos"
               className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-medium transition-colors group"
             >
-              Consultar Términos y Condiciones 
+              Consultar Términos y Condiciones
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -197,9 +196,9 @@ const Seguridad = () => {
 };
 
 const SocialIcon = ({ href, Icon, hover }) => (
-  <a 
+  <a
     href={href} target="_blank" rel="noopener noreferrer"
-    className={`w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-300 border border-slate-700 ${hover}`}
+    className={`w - 10 h - 10 rounded - full bg - slate - 800 flex items - center justify - center text - slate - 400 hover: text - white transition - all duration - 300 border border - slate - 700 ${hover} `}
   >
     <Icon size={20} />
   </a>

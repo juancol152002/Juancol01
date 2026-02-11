@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // Importante para los links
-import { ChevronDown, HelpCircle, TrendingUp,  Instagram, Send, MessageCircle } from 'lucide-react';
+import { ChevronDown, HelpCircle, TrendingUp, Instagram, Send, MessageCircle } from 'lucide-react';
+import logoImg from '../assets/components/logo.jpg';
 
 const FaqItem = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,13 +42,13 @@ const Faq = () => {
       question: "¿Cómo puedo contactar al soporte técnico en caso de error?",
       answer: (
         <span>
-          Si presentas algún inconveniente, nuestro equipo de atención está disponible para ayudarte a través de nuestras redes oficiales: 
-          escríbenos por <a href="https://t.me/danieln1304" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline font-medium">Telegram</a>, 
-          vía <a href="https://wa.me/584122080281" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline font-medium">WhatsApp</a> o 
+          Si presentas algún inconveniente, nuestro equipo de atención está disponible para ayudarte a través de nuestras redes oficiales:
+          escríbenos por <a href="https://t.me/danieln1304" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline font-medium">Telegram</a>,
+          vía <a href="https://wa.me/584122080281" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline font-medium">WhatsApp</a> o
           envíanos un mensaje directo por <a href="https://www.instagram.com/danieln0908/" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline font-medium">Instagram</a>.
         </span>
       )
-    }    
+    }
   ];
 
   return (
@@ -56,29 +57,27 @@ const Faq = () => {
       <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2 group">
-                <div className="bg-cyan-500 p-1.5 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-white" />
-                </div>
-                <span className="font-bold text-xl tracking-tight text-white">
-                  CryptoManager
-                </span>
+            <Link to="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
+              <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm group-hover:scale-105 transition-transform" />
+              <span className="font-bold text-xl tracking-tight text-white group-hover:text-cyan-400 transition-colors">
+                CryptoManager
+              </span>
             </Link>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
                 <Link to="/mercado" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                   Mercado
-                </Link>                
+                </Link>
                 <Link to="/seguridad" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                   Seguridad
                 </Link>
                 <Link to="/login">
-                    <button className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all">
-                      Iniciar Sesión
-                    </button>
+                  <button className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-full text-sm font-medium transition-all">
+                    Iniciar Sesión
+                  </button>
                 </Link>
               </div>
-            </div> 
+            </div>
           </div>
         </div>
       </nav>
@@ -150,7 +149,7 @@ const Faq = () => {
   );
 };
 const SocialIcon = ({ href, Icon, hover }) => (
-  <a 
+  <a
     href={href} target="_blank" rel="noopener noreferrer"
     className={`w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-300 border border-slate-700 ${hover}`}
   >

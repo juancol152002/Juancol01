@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { ChevronLeft, Scale, ShieldCheck, AlertTriangle, Instagram, Send, MessageCircle, FileText, EyeOff, Ban, UserCheck } from 'lucide-react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import logoImg from '../assets/components/logo.jpg';
+import { ChevronLeft, Scale, ShieldCheck, AlertTriangle, Instagram, Send, MessageCircle, FileText, EyeOff, Ban, UserCheck, TrendingUp } from 'lucide-react';
 
 const Terminos = () => {
   const { hash } = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (hash) {
@@ -14,41 +16,42 @@ const Terminos = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 font-sans pb-20">
-      
+
       {/* --- HEADER DINÁMICO --- */}
       <div className="bg-slate-950 border-b border-slate-800 py-12">
         <div className="max-w-4xl mx-auto px-6">
-          <Link to="/" className="text-cyan-400 flex items-center gap-2 mb-6 hover:text-cyan-300 transition-colors">
-            <ChevronLeft size={20} /> Volver al Inicio
-          </Link>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-cyan-400 flex items-center gap-2 mb-6 hover:text-cyan-300 transition-colors"
+          >
+            <ChevronLeft size={20} /> Volver
+          </button>
           <h1 className="text-4xl font-extrabold text-white mb-4">
             Centro <span className="text-cyan-500">Legal</span>
           </h1>
           <p className="text-slate-500 text-sm">
             Términos de Servicio y Políticas de Privacidad • Actualizado Feb 2026
           </p>
-          
+
           <div className="flex gap-4 mt-8">
             {/* Botón Términos: Se pone Cian si el hash es #terminos o si no hay hash (por defecto) */}
-            <a 
-              href="#terminos" 
-              className={`text-xs px-4 py-2 rounded-full border transition-all ${
-                hash === '#terminos' || hash === '' 
-                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' 
+            <a
+              href="#terminos"
+              className={`text-xs px-4 py-2 rounded-full border transition-all ${hash === '#terminos' || hash === ''
+                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
                 : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
-              }`}
+                }`}
             >
               Términos de Uso
             </a>
 
             {/* Botón Privacidad: Se pone Cian solo si el hash es #privacidad */}
-            <a 
-              href="#privacidad" 
-              className={`text-xs px-4 py-2 rounded-full border transition-all ${
-                hash === '#privacidad' 
-                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' 
+            <a
+              href="#privacidad"
+              className={`text-xs px-4 py-2 rounded-full border transition-all ${hash === '#privacidad'
+                ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'
                 : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
-              }`}
+                }`}
             >
               Política de Privacidad
             </a>
@@ -58,13 +61,13 @@ const Terminos = () => {
 
       {/* --- CONTENIDO PRINCIPAL --- */}
       <main className="max-w-4xl mx-auto px-6 py-12 leading-relaxed">
-        
+
         {/* ================= SECTION 1: TÉRMINOS Y CONDICIONES ================= */}
         <div id="terminos" className="space-y-12 mb-24">
           <h2 className="text-3xl font-bold text-white flex items-center gap-3 border-b border-slate-800 pb-4">
             <Scale className="text-cyan-500" /> Términos y Condiciones
           </h2>
-          
+
           <section>
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <ShieldCheck className="text-cyan-500" size={20} /> 1. Aceptación de los Términos
@@ -84,7 +87,7 @@ const Terminos = () => {
           </section>
 
           {/* --- SECCIÓN CORREGIDA: ADVERTENCIA DE RIESGO --- */}
-          <section className="relative -mx-4 md:-mx-6"> 
+          <section className="relative -mx-4 md:-mx-6">
             {/* El margen negativo compensa el padding para que el contenido interno se alinee con el resto */}
             <div className="bg-amber-500/5 p-6 md:p-8 rounded-2xl border border-amber-500/20 shadow-lg">
               <h3 className="text-xl font-bold text-amber-400 mb-4 flex items-center gap-2">
@@ -98,7 +101,7 @@ const Terminos = () => {
 
           <section>
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-               <UserCheck size={20} className="text-cyan-500"/> 4. Cuentas de Usuario
+              <UserCheck size={20} className="text-cyan-500" /> 4. Cuentas de Usuario
             </h3>
             <p className="pl-1">
               Usted es responsable de mantener la confidencialidad de sus credenciales de acceso. Cualquier actividad realizada bajo su cuenta será su responsabilidad.
@@ -151,7 +154,7 @@ const Terminos = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 text-left">
             <div className="col-span-1 md:col-span-1">
               <h3 className="text-white text-xl font-bold mb-4 flex items-center">
-                <span className="text-cyan-400 mr-2">◈</span> CryptoManager
+                <img src={logoImg} alt="Logo" className="h-6 w-6 rounded-md mr-2 object-cover" /> CryptoManager
               </h3>
               <p className="text-sm leading-relaxed">
                 Gestión avanzada de activos digitales con datos en tiempo real y seguridad Cold Storage.
@@ -193,7 +196,7 @@ const Terminos = () => {
 };
 
 const SocialIcon = ({ href, Icon, hover }) => (
-  <a 
+  <a
     href={href} target="_blank" rel="noopener noreferrer"
     className={`w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-300 border border-slate-700 ${hover}`}
   >

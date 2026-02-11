@@ -1,46 +1,89 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.models import User
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
+from .serializers import UserSerializer, UserProfileSerializer, ChangePasswordSerializer
 
 # --- VISTA DE REGISTRO ---
 @api_view(['POST'])
-@permission_classes([AllowAny]) # Permitir entrar a cualquiera (para registrarse)
+@permission_classes([AllowAny])
 def registrar_usuario(request):
     data = request.data
     try:
-        # Verificar si ya existe un usuario con ese email
-        # CAMBIO: Agregamos esta validación para evitar duplicados.
-        # Buscamos si existe algún usuario en la BD que tenga este mismo correo.
         if User.objects.filter(email=data['email']).exists():
             return Response({'error': 'El correo electrónico ya está registrado.'}, status=400)
 
         user = User.objects.create(
-            username=data['email'], # Usamos el email como username
+            username=data['email'],
             email=data['email'],
-            password=make_password(data['password']), # Encriptar contraseña
-            first_name=data.get('nombre', '')
+            password=make_password(data['password']),
+            first_name=data.get('nombre') or data.get('first_name', '')
         )
         return Response({'mensaje': 'Usuario creado exitosamente'}, status=201)
     except Exception as e:
         return Response({'error': str(e)}, status=400)
 
-# --- VISTA PROTEGIDA (DASHBOARD) ---
+# --- OBTENER PERFIL ---
 @api_view(['GET'])
-@permission_classes([IsAuthenticated]) # <--- ¡SOLO CON TOKEN!
+@permission_classes([IsAuthenticated])
+def obtener_perfil(request):
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
+
+# --- ACTUALIZAR PERFIL (NOMBRE E IMAGEN) ---
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def actualizar_perfil(request):
+    user = request.user
+    profile = user.profile
+    
+    nombre = request.data.get('nombre')
+    imagen = request.FILES.get('image')
+    
+    if nombre:
+        user.first_name = nombre
+        user.save()
+        
+    if imagen:
+        profile.image = imagen
+        profile.save()
+        
+    return Response({
+        'mensaje': 'Perfil actualizado correctamente',
+        'user': UserSerializer(user).data
+    })
+
+# --- CAMBIAR CONTRASEÑA ---
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cambiar_password(request):
+    user = request.user
+    serializer = ChangePasswordSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        if not check_password(serializer.data.get('old_password'), user.password):
+            return Response({'error': 'La contraseña actual es incorrecta.'}, status=400)
+            
+        user.set_password(serializer.data.get('new_password'))
+        user.save()
+        return Response({'mensaje': 'Contraseña actualizada correctamente'})
+        
+    return Response(serializer.errors, status=400)
+
+# --- VISTA PROTEGIDA (DASHBOARD) - Mantener para compatibilidad ---
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def obtener_dashboard(request):
     user = request.user
-    # Aquí simulamos datos, pero en el futuro los sacarás de tus modelos
     datos_portafolio = {
-        "usuario": user.first_name,
-        "balance_total": 15400.00,
-        "activos": [
-            {"nombre": "Bitcoin", "simbolo": "BTC", "cantidad": 0.5, "valor": 22000, "color": "bg-orange-500"},
-            {"nombre": "USDT", "simbolo": "USDT", "cantidad": 400, "valor": 400, "color": "bg-emerald-500"},
-        ]
+        "usuario": user.first_name or user.username,
+        "email": user.email,
+        "avatar": request.build_absolute_uri(user.profile.image.url) if user.profile.image else None,
+        "balance_total": 0, # Implementar lógica de balance si es necesario
+        "activos": []
     }
     return Response(datos_portafolio)
-
-# Create your views here.

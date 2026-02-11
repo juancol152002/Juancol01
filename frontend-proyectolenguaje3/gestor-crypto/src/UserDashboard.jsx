@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import GestionModal from './components/GestionModal';
-import { TrendingUp, History, Wallet, ArrowRight, ArrowDownLeft, ArrowUpRight, LogOut, Download } from 'lucide-react';
+import ProfileModal from './components/ProfileModal';
+import CryptoChart from './components/CryptoChart';
+import logoImg from './assets/components/logo.jpg';
+import { TrendingUp, History, Wallet, ArrowRight, ArrowDownLeft, ArrowUpRight, LogOut, Download, User } from 'lucide-react';
 
 const UserDashboard = () => {
     const [criptos, setCriptos] = useState([]);
@@ -13,9 +16,15 @@ const UserDashboard = () => {
     });
     const [mensaje, setMensaje] = useState(null);
     const [modalError, setModalError] = useState({ isOpen: false, message: '' });
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-    // 1. Cargar datos iniciales (Monedas e Historial)
+    const [usuario, setUsuario] = useState(null);
+
+    // 1. Cargar datos iniciales
     useEffect(() => {
+        const localUser = JSON.parse(localStorage.getItem('usuario') || '{}');
+        setUsuario(localUser);
+
         const fetchData = async () => {
             const token = localStorage.getItem('accessToken');
             const headers = { 'Authorization': `Bearer ${token}` };
@@ -153,12 +162,31 @@ const UserDashboard = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         <div className="flex items-center gap-2">
-                            <div className="bg-cyan-500 p-1.5 rounded-lg"><TrendingUp className="h-5 w-5 text-white" /></div>
+                            <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm" />
                             <span className="font-bold text-xl tracking-tight">Mi Portafolio</span>
                         </div>
-                        <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors text-sm font-medium">
-                            <LogOut className="h-4 w-4" /> Salir
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setIsProfileOpen(true)}
+                                className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700 group"
+                            >
+                                <div className="text-right hidden sm:block">
+                                    <p className="text-xs font-bold text-white leading-none">{usuario?.name || 'Usuario'}</p>
+                                    <p className="text-[10px] text-slate-500 font-medium leading-tight">Mi Cuenta</p>
+                                </div>
+                                <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-slate-700 bg-slate-800 flex items-center justify-center group-hover:border-cyan-500 transition-colors">
+                                    {usuario?.avatar ? (
+                                        <img src={usuario.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <User className="h-4 w-4 text-slate-400" />
+                                    )}
+                                </div>
+                            </button>
+                            <div className="h-6 w-px bg-slate-800" />
+                            <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors text-sm font-medium">
+                                <LogOut className="h-4 w-4" /> Cerrar Sesión
+                            </button>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -204,6 +232,21 @@ const UserDashboard = () => {
                                         ))}
                                     </select>
                                 </div>
+
+                                {formData.currency && (
+                                    <div className="rounded-xl overflow-hidden border border-slate-700 bg-slate-900/50">
+                                        <CryptoChart
+                                            symbol={(() => {
+                                                const sel = criptos.find(c => String(c.id) === String(formData.currency));
+                                                if (!sel) return "BTCUSDT";
+                                                const symbol = sel.simbolo?.toUpperCase();
+                                                if (symbol === 'XPR') return "KUCOIN:XPRUSDT";
+                                                if (symbol === 'USDT') return "BINANCE:USDTUSD";
+                                                return `${symbol}USDT`;
+                                            })()}
+                                        />
+                                    </div>
+                                )}
 
                                 <div>
                                     <label className="block text-sm font-medium text-slate-400 mb-1">Tipo de Operación</label>
@@ -331,6 +374,15 @@ const UserDashboard = () => {
                     </div>
 
                 </div>
+
+                {/* Footer movido un poco más abajo con margen superior */}
+                <div className="mt-16 text-center text-xs text-slate-600 pb-4">
+                    <p>&copy; 2026 CryptoManager. Creado para Proyecto Lenguaje III. Todos los derechos reservados</p>
+                    <div className="flex justify-center gap-4 mt-2">
+                        <a href="/terminos#privacidad" className="hover:text-slate-400">Privacidad</a>
+                        <a href="/terminos#terminos" className="hover:text-slate-400">Términos</a>
+                    </div>
+                </div>
             </main>
 
             <GestionModal
@@ -339,6 +391,11 @@ const UserDashboard = () => {
                 type="error"
                 title="Error de Descarga"
                 message={modalError.message}
+            />
+
+            <ProfileModal
+                isOpen={isProfileOpen}
+                onClose={() => setIsProfileOpen(false)}
             />
         </div>
     );

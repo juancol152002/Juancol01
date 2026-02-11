@@ -37,8 +37,23 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['id'] = self.user.id
         data['email'] = self.user.email
         data['username'] = self.user.username
+        data['first_name'] = self.user.first_name
         data['is_staff'] = self.user.is_staff  
         data['is_superuser'] = self.user.is_superuser
+        
+        # Imagen de perfil url absoluta
+        request = self.context.get('request')
+        if hasattr(self.user, 'profile') and self.user.profile.image:
+            if request:
+                data['image_url'] = request.build_absolute_uri(self.user.profile.image.url)
+            else:
+                data['image_url'] = self.user.profile.image.url
+        else:
+            default_path = '/media/default-avatar.jpg'
+            if request:
+                data['image_url'] = request.build_absolute_uri(default_path)
+            else:
+                data['image_url'] = default_path
 
         return data
     
