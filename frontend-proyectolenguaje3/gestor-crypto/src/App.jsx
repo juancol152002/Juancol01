@@ -7,24 +7,27 @@ import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoute';
 import AdminDashboard from './AdminDashboard';
 import UserDashboard from './UserDashboard';
-import Mercado from './pages/Mercado'; 
+import Mercado from './pages/Mercado';
 import Seguridad from './pages/Seguridad';
 import Faq from './pages/faq';
 import Contacto from './pages/contacto';
 import Terminos from './pages/terminos';
 
-// --- 1. IMPORTA LOS NUEVOS COMPONENTES ---
+import ResetPasswordPage from './ResetPasswordPage';
 
 const App = () => {
   return (
     <BrowserRouter>
-     
+
       <Routes>
         {/* Ruta principal */}
         <Route path="/" element={<LandingPage />} />
-        
+
         {/* Ruta de login */}
         <Route path="/login" element={<AuthPage />} />
+
+        {/* Ruta de Recuperación de Contraseña */}
+        <Route path="/reset-password/:uid/:token" element={<ResetPasswordPage />} />
 
         {/* Aquí es donde Mercado mostrará la tabla que creamos. 
             Asegúrate de editar el archivo pages/Mercado.jsx e insertar <MarketTable /> ahí.

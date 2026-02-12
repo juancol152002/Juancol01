@@ -13,11 +13,16 @@ from .serializers import UserSerializer, UserProfileSerializer, ChangePasswordSe
 def registrar_usuario(request):
     data = request.data
     try:
+        # 1. Validar correo
         if User.objects.filter(email=data['email']).exists():
             return Response({'error': 'El correo electrónico ya está registrado.'}, status=400)
+        
+        # 2. Validar username
+        if User.objects.filter(username=data['username']).exists():
+            return Response({'error': 'El nombre de usuario ya está en uso.'}, status=400)
 
         user = User.objects.create(
-            username=data['email'],
+            username=data['username'],
             email=data['email'],
             password=make_password(data['password']),
             first_name=data.get('nombre') or data.get('first_name', '')

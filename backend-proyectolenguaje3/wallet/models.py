@@ -135,3 +135,16 @@ def actualizar_saldo_wallet(sender, instance, created, **kwargs):
 
             except Exception as e:
                 print(f"No se pudo enviar el correo de notificación. Error: {e}")
+
+class RecoveryRequest(models.Model):
+    email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_processed = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Solicitud de Recuperación"
+        verbose_name_plural = "Solicitudes de Recuperación"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Recuperar: {self.email} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"

@@ -1,9 +1,9 @@
 from django.urls import path
-# Agregamos ContactoView a la lista de importación
-from wallet.views import obtener_dashboard, ContactoView 
+from wallet.views import obtener_dashboard, ContactoView, PasswordResetRequestView, ResetPasswordConfirmView
 
 urlpatterns = [
     path('dashboard/', obtener_dashboard),
-    # Ahora Django sí encontrará la clase aquí abajo
-    path('api/contacto/', ContactoView.as_view(), name='contacto'),
+    path('contacto/', ContactoView.as_view(), name='contacto'),
+    path('recuperar-password/', PasswordResetRequestView.as_view(), name='recuperar-password'),
+    path('confirmar-password/', ResetPasswordConfirmView.as_view(), name='confirmar-password'),
 ]

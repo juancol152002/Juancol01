@@ -2,7 +2,7 @@ import openpyxl # Importamos la librería para Excel
 from django.http import HttpResponse # Para devolver el archivo al navegador
 from rest_framework.decorators import action # Para crear la ruta personalizada
 from rest_framework import viewsets, permissions
-from .models import Wallet, Transaccion
+from .models import Wallet, Transaccion, RecoveryRequest
 from decimal import Decimal
 from .serializers import WalletSerializer, TransaccionSerializer
 from rest_framework import generics
@@ -12,15 +12,14 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .serializers import TransaccionAdminSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
-from .serializers import CrearTransaccionSerializer
+from .serializers import TransaccionAdminSerializer, CrearTransaccionSerializer
 import yagmail
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
 
 class CrearTransaccionView(APIView):
     permission_classes = [IsAuthenticated]
@@ -290,3 +289,75 @@ class ContactoView(APIView):
             return Response({"status": "ok"}, status=200)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({"error": "El correo es obligatorio."}, status=400)
+
+        # Verificar si el usuario existe
+        if not User.objects.filter(email=email).exists():
+            return Response({"error": "No existe una cuenta asociada a este correo."}, status=404)
+
+        # Registrar la solicitud
+        RecoveryRequest.objects.create(email=email)
+
+        # (Opcional) Enviar correo de notificación al administrador o al usuario
+        try:
+            # Generar token y uid
+            user = User.objects.get(email=email)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            
+            # URL para el frontend (Vite por defecto usa el puerto 5173)
+            reset_link = f"http://localhost:5173/reset-password/{uid}/{token}"
+
+            mi_correo = 'josedaniel0908@gmail.com'
+            mi_password = 'shuv jsce bvhn eppc'
+            yag = yagmail.SMTP(user=mi_correo, password=mi_password)
+            
+            yag.send(
+                to=email,
+                subject="Recuperación de Contraseña - CryptoManager",
+                contents=[
+                    f"Hola <b>{user.username}</b>,",
+                    "Has solicitado restablecer tu contraseña. Haz clic en el siguiente botón para continuar:",
+                    f"<a href='{reset_link}' style='display:inline-block;background:#06b6d4;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;font-weight:bold;'>Restablecer Contraseña</a>",
+                    "<br><br>",
+                    "Si no funciona el botón, copia y pega este enlace en tu navegador:",
+                    f"{reset_link}",
+                    "<br><hr>",
+                    "Si no solicitaste este cambio, puedes ignorar este correo de forma segura."
+                ]
+            )
+        except Exception as e:
+            print(f"Error enviando correo de recuperación: {e}")
+
+        return Response({"message": "Se ha enviado un enlace de recuperación a tu correo electrónico."}, status=200)
+
+class ResetPasswordConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        uidb64 = request.data.get('uid')
+        token = request.data.get('token')
+        new_password = request.data.get('password')
+
+        if not all([uidb64, token, new_password]):
+            return Response({"error": "Faltan datos obligatorios."}, status=400)
+
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response({"error": "Enlace de recuperación inválido o expirado."}, status=400)
+
+        if default_token_generator.check_token(user, token):
+            user.set_password(new_password)
+            user.save()
+            return Response({"message": "Contraseña actualizada exitosamente. Ya puedes iniciar sesión."}, status=200)
+        else:
+            return Response({"error": "El enlace ha expirado o es inválido."}, status=400)

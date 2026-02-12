@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Wallet, Transaccion
+from .models import Wallet, Transaccion, RecoveryRequest
+
+@admin.register(RecoveryRequest)
+class RecoveryRequestAdmin(admin.ModelAdmin):
+    list_display = ('email', 'created_at', 'is_processed')
+    list_filter = ('is_processed', 'created_at')
+    list_editable = ('is_processed',)
+    search_fields = ('email',)
 
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin):
