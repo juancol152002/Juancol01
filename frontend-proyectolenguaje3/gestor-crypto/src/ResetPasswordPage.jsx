@@ -48,7 +48,7 @@ const ResetPasswordPage = () => {
 
         setLoading(true);
         try {
-            const response = await fetch('http://192.168.1.116:8000/api/wallet/confirmar-password/', {
+            const response = await fetch('http://localhost:8000/api/wallet/confirmar-password/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -202,18 +202,18 @@ const UserDashboard = () => {
 
             try {
                 // Cargar Monedas
-                const resCriptos = await fetch('http://192.168.1.116:8000/api/criptos/', { headers });
+                const resCriptos = await fetch('http://localhost:8000/api/criptos/', { headers });
                 const dataCriptos = await resCriptos.json();
                 setCriptos(dataCriptos);
                 if (dataCriptos.length > 0) setFormData(prev => ({ ...prev, currency: dataCriptos[0].id }));
 
                 // Cargar Historial
-                const resHist = await fetch('http://192.168.1.116:8000/api/transacciones/historial/', { headers });
+                const resHist = await fetch('http://localhost:8000/api/transacciones/historial/', { headers });
                 const dataHist = await resHist.json();
                 setHistorial(Array.isArray(dataHist) ? dataHist : []);
 
                 // Cargar Dashboard Data
-                const resDash = await fetch('http://192.168.1.116:8000/api/wallet/dashboard/', { headers });
+                const resDash = await fetch('http://localhost:8000/api/wallet/dashboard/', { headers });
                 const dataDash = await resDash.json();
                 setDashboardData(dataDash);
 
@@ -230,7 +230,7 @@ const UserDashboard = () => {
         const token = localStorage.getItem('accessToken');
 
         try {
-            const response = await fetch('http://192.168.1.116:8000/api/transacciones/crear/', {
+            const response = await fetch('http://localhost:8000/api/transacciones/crear/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -245,10 +245,10 @@ const UserDashboard = () => {
                 setMensaje({ type: 'success', text: '¡Solicitud enviada con éxito!' });
                 // Recargar historial y dashboard
                 const headers = { 'Authorization': `Bearer ${token}` };
-                const resHist = await fetch('http://192.168.1.116:8000/api/transacciones/historial/', { headers });
+                const resHist = await fetch('http://localhost:8000/api/transacciones/historial/', { headers });
                 setHistorial(await resHist.json());
 
-                const resDash = await fetch('http://192.168.1.116:8000/api/wallet/dashboard/', { headers });
+                const resDash = await fetch('http://localhost:8000/api/wallet/dashboard/', { headers });
                 setDashboardData(await resDash.json());
 
             } else {
@@ -299,7 +299,7 @@ const UserDashboard = () => {
                 return;
             }
 
-            const response = await fetch('http://192.168.1.116:8000/api/transactions/exportar_excel/', {
+            const response = await fetch('http://localhost:8000/api/transactions/exportar_excel/', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

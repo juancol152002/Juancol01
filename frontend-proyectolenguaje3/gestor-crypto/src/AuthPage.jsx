@@ -92,8 +92,8 @@ const AuthPage = () => {
     setLoading(true);
 
     const url = isLogin
-      ? 'http://192.168.1.116:8000/api/token/'
-      : 'http://192.168.1.116:8000/api/users/registro/';
+      ? 'http://localhost:8000/api/token/'
+      : 'http://localhost:8000/api/users/registro/';
 
     const payload = {
       email: formData.email,
@@ -379,7 +379,7 @@ const RecoveryModal = ({ isOpen, onClose, setModalState }) => {
 
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.1.116:8000/api/wallet/recuperar-password/', {
+      const response = await fetch('http://localhost:8000/api/wallet/recuperar-password/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

@@ -30,7 +30,7 @@ const Contacto = () => {
 
     try {
       // Esta es la línea de comando que conecta con tu Django
-      const response = await fetch('http://192.168.1.116:8000/api/wallet/api/contacto/', {
+      const response = await fetch('http://localhost:8000/api/wallet/api/contacto/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -41,7 +41,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
         if (!token) return;
 
         try {
-            const response = await fetch('http://192.168.1.116:8000/api/users/perfil/', {
+            const response = await fetch('http://localhost:8000/api/users/perfil/', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -71,7 +71,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
 
                 if (data.profile?.image_url) {
                     const imgUrl = data.profile.image_url;
-                    setPreviewUrl(imgUrl.startsWith('http') ? imgUrl : `http://192.168.1.116:8000${imgUrl}`);
+                    setPreviewUrl(imgUrl.startsWith('http') ? imgUrl : `http://localhost:8000${imgUrl}`);
                 }
             }
         } catch (error) {
@@ -104,7 +104,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
         }
 
         try {
-            const response = await fetch('http://192.168.1.116:8000/api/users/perfil/actualizar/', {
+            const response = await fetch('http://localhost:8000/api/users/perfil/actualizar/', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
@@ -139,7 +139,7 @@ const ProfileModal = ({ isOpen, onClose }) => {
         const token = localStorage.getItem('accessToken');
 
         try {
-            const response = await fetch('http://192.168.1.116:8000/api/users/perfil/password/', {
+            const response = await fetch('http://localhost:8000/api/users/perfil/password/', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

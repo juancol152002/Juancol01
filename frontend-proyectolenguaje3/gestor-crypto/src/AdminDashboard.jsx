@@ -39,7 +39,7 @@ const AdminDashboard = () => {
             const token = localStorage.getItem('accessToken');
 
             // Construimos la URL con filtros
-            let url = `http://192.168.1.116:8000/api/admin/transacciones/?status=${filterStatus}`;
+            let url = `http://localhost:8000/api/admin/transacciones/?status=${filterStatus}`;
             if (filterType !== 'all') {
                 url += `&type=${filterType}`;
             }
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
         try {
             const token = localStorage.getItem('accessToken');
             // Llamamos al endpoint con el ID y la acción
-            const response = await fetch(`http://192.168.1.116:8000/api/admin/transacciones/${id}/`, {
+            const response = await fetch(`http://localhost:8000/api/admin/transacciones/${id}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ const AdminDashboard = () => {
             }
 
             // Llamamos al nuevo endpoint de admin
-            const response = await fetch('http://192.168.1.116:8000/api/transactions/exportar_todo_excel/', {
+            const response = await fetch('http://localhost:8000/api/transactions/exportar_todo_excel/', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -278,8 +278,8 @@ const AdminDashboard = () => {
                     {/* Pequeña estadística (Decorativo) */}
                     <div className="bg-slate-800/50 border border-slate-700/50 px-4 py-2 rounded-lg flex items-center gap-3">
                         <div className={`p-2 rounded-full ${filterStatus === 'all' ? 'bg-cyan-500/10' :
-                                filterStatus === 'approved' ? 'bg-emerald-500/10' :
-                                    filterStatus === 'rejected' ? 'bg-red-500/10' : 'bg-orange-500/10'
+                            filterStatus === 'approved' ? 'bg-emerald-500/10' :
+                                filterStatus === 'rejected' ? 'bg-red-500/10' : 'bg-orange-500/10'
                             }`}>
                             {filterStatus === 'all' ? <TrendingUp className="h-4 w-4 text-cyan-400" /> :
                                 filterStatus === 'approved' ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> :
