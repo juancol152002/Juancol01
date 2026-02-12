@@ -31,45 +31,69 @@ const AuthPage = () => {
     e.preventDefault();
     setError('');
 
-    // VALIDACIÓN COMPLETA
-    const missingFields = [];
+    // VALIDACIÓN ESPECÍFICA POR CAMPO (Secuencial como pidió el usuario)
 
-    // 1. Validar campos vacíos
-    if (!formData.email.trim()) missingFields.push("Correo Electrónico");
-    if (!isLogin && !formData.username.trim()) missingFields.push("Nombre de Usuario");
-    if (!isLogin && !formData.nombre.trim()) missingFields.unshift("Nombre Completo");
-
-    const isPasswordEmpty = !formData.password.trim();
-    const isPasswordShort = !isLogin && formData.password.length < 8; // "8 o más"
-
-    // ... rest of validation ...
-    if (missingFields.length > 0) {
-      if (isPasswordEmpty) missingFields.push("Contraseña");
-
+    // 1. Validar Nombre Completo (Solo registro)
+    if (!isLogin && !formData.nombre.trim()) {
       setModalState({
         isOpen: true,
         type: 'error',
-        title: 'Datos Incompletos',
-        message: `Por favor completa los siguientes campos: ${missingFields.join(', ')}.`
+        title: 'Campo Obligatorio',
+        message: 'Por favor, ingresa tu Nombre Completo para continuar.'
       });
       return;
     }
 
-    if (isPasswordEmpty || isPasswordShort) {
+    // 2. Validar Nombre de Usuario (Solo registro)
+    if (!isLogin && !formData.username.trim()) {
       setModalState({
         isOpen: true,
         type: 'error',
-        title: isPasswordEmpty ? 'Falta Contraseña' : 'Contraseña Insegura',
-        message: 'La contraseña es obligatoria y debe tener al menos 8 caracteres.'
+        title: 'Campo Obligatorio',
+        message: 'Debes elegir un Nombre de Usuario para identificarte.'
       });
       return;
     }
+
+    // 3. Validar Email
+    if (!formData.email.trim()) {
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        title: 'Campo Obligatorio',
+        message: 'El Correo Electrónico es necesario para iniciar sesión o registrarte.'
+      });
+      return;
+    }
+
+    // 4. Validar Contraseña (Vacía)
+    if (!formData.password.trim()) {
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        title: 'Campo Obligatorio',
+        message: 'Por favor, ingresa tu Contraseña.'
+      });
+      return;
+    }
+
+    // 5. Validar Longitud de Contraseña (Solo registro)
+    if (!isLogin && formData.password.length < 8) {
+      setModalState({
+        isOpen: true,
+        type: 'error',
+        title: 'Contraseña Insegura',
+        message: 'La contraseña debe tener al menos 8 caracteres para mayor seguridad.'
+      });
+      return;
+    }
+
 
     setLoading(true);
 
     const url = isLogin
-      ? 'http://127.0.0.1:8000/api/token/'
-      : 'http://127.0.0.1:8000/api/users/registro/';
+      ? 'http://192.168.1.116:8000/api/token/'
+      : 'http://192.168.1.116:8000/api/users/registro/';
 
     const payload = {
       email: formData.email,
@@ -113,23 +137,51 @@ const AuthPage = () => {
           setIsRegistered(true); // Activa la vista de éxito
         }
       } else {
-        const errorMsg = data.detail || 'Verifica tus datos'; // Simplificamos mensaje
+        // MANEJO DE ERRORES DEL BACKEND
+        // El backend devuelve { error: "Mensaje" } o estandar DRF { key: ["msg"] }
+
+        let errorTitle = 'Error de Autenticación';
+        // Prioridad: data.error (Manual) -> data.detail (DRF) -> Primer valor de array (DRF validacion)
+        let errorMsg = data.error || data.detail;
+
+        if (!errorMsg) {
+          // Si no hay error/detail, buscamos en keys posibles (estandar DRF)
+          if (data.username) errorMsg = data.username[0];
+          else if (data.email) errorMsg = data.email[0];
+          else if (data.password) errorMsg = data.password[0];
+          else errorMsg = 'Verifica tus datos e inténtalo de nuevo.';
+        }
+
+        // Detectar tipo de error por el contenido del mensaje
+        const msgLower = errorMsg.toLowerCase();
+
+        if (msgLower.includes('nombre de usuario ya está en uso') || msgLower.includes('already exists')) {
+          errorTitle = 'Usuario No Disponible';
+          errorMsg = `El nombre de usuario "${formData.username}" ya está en uso. Por favor elige otro.`;
+        } else if (msgLower.includes('correo electrónico ya está registrado') || msgLower.includes('email already exists')) {
+          errorTitle = 'Correo Ya Registrado';
+          errorMsg = `El correo "${formData.email}" ya tiene una cuenta asociada. Intenta iniciar sesión.`;
+        } else if (response.status === 401 || msgLower.includes('credenciales')) {
+          errorTitle = 'Credenciales Incorrectas';
+          errorMsg = 'El correo o la contraseña no son correctos.';
+        }
+
         setError('Error: ' + errorMsg);
-        // Tambien mostramos modal si es registro o error general
         setModalState({
           isOpen: true,
           type: 'error',
-          title: 'Error de Autenticación',
+          title: errorTitle,
           message: errorMsg
         });
       }
     } catch (err) {
-      setError('No se pudo conectar con el servidor Django.');
+      console.error(err);
+      setError('No se pudo conectar con el servidor.');
       setModalState({
         isOpen: true,
         type: 'error',
         title: 'Error de Conexión',
-        message: 'No se pudo conectar con el servidor. Inténtalo más tarde.'
+        message: 'No se pudo conectar con el servidor. Verifica tu internet o inténtalo más tarde.'
       });
     } finally {
       setLoading(false);
@@ -155,8 +207,8 @@ const AuthPage = () => {
       </div>
 
       {/* --- LADO DERECHO (FORMULARIO) --- */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-y-auto">
-        <div className="w-full max-w-md my-auto">
+      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-12 relative overflow-y-auto">
+        <div className="w-full max-w-sm md:max-w-md my-auto">
 
           {isRegistered ? (
             /* --- VISTA DE ÉXITO --- */
@@ -327,7 +379,7 @@ const RecoveryModal = ({ isOpen, onClose, setModalState }) => {
 
     setLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/wallet/recuperar-password/', {
+      const response = await fetch('http://192.168.1.116:8000/api/wallet/recuperar-password/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -366,7 +418,7 @@ const RecoveryModal = ({ isOpen, onClose, setModalState }) => {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-[2rem] p-8 shadow-2xl scale-in-center animate-in zoom-in duration-300">
+      <div className="bg-slate-900 border border-slate-800 w-full max-w-[90%] sm:max-w-sm rounded-[2rem] p-6 sm:p-8 shadow-2xl scale-in-center animate-in zoom-in duration-300">
         <div className="text-center mb-6">
           <div className="bg-cyan-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-cyan-500/20">
             <Mail className="text-cyan-400 w-8 h-8" />

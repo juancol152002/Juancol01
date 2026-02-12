@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-age#(@0l_zjnj)!+-lu)qv51xo^c)+a+s7547)xz&t&j+(in30
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -116,10 +116,7 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:5173",
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 REST_FRAMEWORK = {

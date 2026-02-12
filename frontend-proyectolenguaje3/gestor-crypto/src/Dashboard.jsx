@@ -37,7 +37,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await fetch('http://127.0.0.1:8000/api/transactions/exportar_excel/', {
+      const response = await fetch('http://192.168.1.116:8000/api/transactions/exportar_excel/', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -105,7 +105,8 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
     textAlign: 'center',
-    minWidth: '300px'
+    minWidth: '300px',
+    maxWidth: '90%'
   },
   button: {
     marginTop: '20px',

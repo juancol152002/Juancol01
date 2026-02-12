@@ -3,7 +3,7 @@ import GestionModal from './components/GestionModal';
 import ProfileModal from './components/ProfileModal';
 import CryptoChart from './components/CryptoChart';
 import logoImg from './assets/components/logo.jpg';
-import { TrendingUp, History, Wallet, ArrowRight, ArrowDownLeft, ArrowUpRight, LogOut, Download, User, DollarSign } from 'lucide-react';
+import { TrendingUp, History, Wallet, ArrowRight, ArrowDownLeft, ArrowUpRight, LogOut, Download, User, DollarSign, CheckCircle2, Clock, XCircle } from 'lucide-react';
 
 const COLORS = ['#F7931A', '#F3BA2F', '#3C3C3D', '#26A17B', '#627EEA', '#000000', '#222222'];
 const SYMBOL_COLORS = {
@@ -11,13 +11,17 @@ const SYMBOL_COLORS = {
     'DOGE': '#F3BA2F',
     'ETH': '#627EEA',
     'USDT': '#26A17B',
+    'XPR': '#A855F7', // Proton (Morado)
+    'XRP': '#000000', // Ripple (Negro/Oscuro)
 };
 
 const CRYPTO_LOGOS = {
     'BTC': 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
     'ETH': 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
-    'USDT': 'https://cryptologos.cc/logos/tether-usdt-logo.svg',
+    'USDT': 'https://cryptologos.cc/logos/tether-usdt-logo.png',
     'DOGE': 'https://cryptologos.cc/logos/dogecoin-doge-logo.png',
+    'XPR': 'https://cryptologos.cc/logos/proton-xpr-logo.png',
+    'XRP': 'https://cryptologos.cc/logos/xrp-xrp-logo.png',
 };
 
 // --- COMPONENTE DE GRÁFICO MANUAL (SVG) INTERACTIVO ---
@@ -42,6 +46,7 @@ const PortfolioPieChart = ({ data }) => {
             <div className="relative w-64 h-64">
                 <svg viewBox="-1.1 -1.1 2.2 2.2" className="transform -rotate-90 w-full h-full">
                     {data.map((slice, index) => {
+                        const symbol = slice.simbolo ? slice.simbolo.toUpperCase() : '';
                         const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
                         cumulativePercent += slice.valor / total;
                         const [endX, endY] = getCoordinatesForPercent(cumulativePercent);
@@ -58,7 +63,7 @@ const PortfolioPieChart = ({ data }) => {
                             <path
                                 key={index}
                                 d={pathData}
-                                fill={SYMBOL_COLORS[slice.simbolo] || COLORS[index % COLORS.length]}
+                                fill={SYMBOL_COLORS[symbol] || COLORS[index % COLORS.length]}
                                 className={`transition-all cursor-default ${isHovered ? 'scale-[1.05]' : 'opacity-80'}`}
                                 onMouseEnter={() => setActiveIndex(index)}
                                 onMouseLeave={() => setActiveIndex(null)}
@@ -74,9 +79,9 @@ const PortfolioPieChart = ({ data }) => {
                     {activeItem ? (
                         <>
                             {/* Logo usando SVG image para máxima estabilidad y evitar 'barras' */}
-                            {CRYPTO_LOGOS[activeItem.simbolo] && (
+                            {CRYPTO_LOGOS[activeItem.simbolo?.toUpperCase()] && (
                                 <image
-                                    href={CRYPTO_LOGOS[activeItem.simbolo]}
+                                    href={CRYPTO_LOGOS[activeItem.simbolo?.toUpperCase()]}
                                     x="-0.15"
                                     y="-0.4"
                                     width="0.3"
@@ -112,23 +117,50 @@ const PortfolioPieChart = ({ data }) => {
 
             {/* Leyenda personalizada */}
             <div className="flex flex-col gap-3 min-w-[200px]">
-                {data.map((item, index) => (
-                    <div
-                        key={index}
-                        className={`flex items-center justify-between p-2 rounded-lg transition-all ${activeIndex === index ? 'bg-slate-800 ring-1 ring-slate-700' : ''}`}
-                        onMouseEnter={() => setActiveIndex(index)}
-                        onMouseLeave={() => setActiveIndex(null)}
-                    >
-                        <div className="flex items-center gap-3">
-                            <div
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: SYMBOL_COLORS[item.simbolo] || COLORS[index % COLORS.length] }}
-                            />
-                            <span className="text-sm font-bold text-slate-200">{item.simbolo}</span>
+                {data.map((item, index) => {
+                    const symbol = item.simbolo ? item.simbolo.toUpperCase() : '';
+                    const hasLogo = CRYPTO_LOGOS[symbol];
+                    const color = SYMBOL_COLORS[symbol] || COLORS[index % COLORS.length];
+
+                    return (
+                        <div
+                            key={index}
+                            className={`flex items-center justify-between p-2 rounded-lg transition-all ${activeIndex === index ? 'bg-slate-800 ring-1 ring-slate-700' : ''}`}
+                            onMouseEnter={() => setActiveIndex(index)}
+                            onMouseLeave={() => setActiveIndex(null)}
+                        >
+                            <div className="flex items-center gap-3">
+                                {hasLogo ? (
+                                    <img
+                                        src={CRYPTO_LOGOS[symbol]}
+                                        alt={symbol}
+                                        className={`w-5 h-5 rounded-full object-cover ${symbol === 'XRP' ? 'bg-slate-200 p-[1px]' : 'bg-white/10'}`}
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.style.display = 'none';
+                                            e.target.nextSibling.style.display = 'block'; // Mostrar el fallback si existe
+                                        }}
+                                    />
+                                ) : (
+                                    <div
+                                        className="w-5 h-5 rounded-full"
+                                        style={{ backgroundColor: color }}
+                                    />
+                                )}
+                                {/* Fallback oculto por defecto, se muestra si falla la imagen */}
+                                {hasLogo && (
+                                    <div
+                                        className="w-5 h-5 rounded-full hidden"
+                                        style={{ backgroundColor: color }}
+                                    />
+                                )}
+
+                                <span className="text-sm font-bold text-slate-200">{item.simbolo}</span>
+                            </div>
+                            <span className="text-sm text-slate-400 font-mono">${item.valor.toLocaleString()}</span>
                         </div>
-                        <span className="text-sm text-slate-400 font-mono">${item.valor.toLocaleString()}</span>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
@@ -149,6 +181,15 @@ const UserDashboard = () => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     const [usuario, setUsuario] = useState(null);
+    const [filterStatus, setFilterStatus] = useState('all');
+    const [filterType, setFilterType] = useState('all');
+    const [selectedTx, setSelectedTx] = useState(null);
+
+    const filteredHistorial = historial.filter(tx => {
+        if (filterStatus !== 'all' && tx.status !== filterStatus) return false;
+        if (filterType !== 'all' && tx.type !== filterType) return false;
+        return true;
+    });
 
     // 1. Cargar datos iniciales
     useEffect(() => {
@@ -161,18 +202,18 @@ const UserDashboard = () => {
 
             try {
                 // Cargar Monedas
-                const resCriptos = await fetch('http://127.0.0.1:8000/api/criptos/', { headers });
+                const resCriptos = await fetch('http://192.168.1.116:8000/api/criptos/', { headers });
                 const dataCriptos = await resCriptos.json();
                 setCriptos(dataCriptos);
                 if (dataCriptos.length > 0) setFormData(prev => ({ ...prev, currency: dataCriptos[0].id }));
 
                 // Cargar Historial
-                const resHist = await fetch('http://127.0.0.1:8000/api/transacciones/historial/', { headers });
+                const resHist = await fetch('http://192.168.1.116:8000/api/transacciones/historial/', { headers });
                 const dataHist = await resHist.json();
                 setHistorial(Array.isArray(dataHist) ? dataHist : []);
 
                 // Cargar Dashboard Data
-                const resDash = await fetch('http://127.0.0.1:8000/api/wallet/dashboard/', { headers });
+                const resDash = await fetch('http://192.168.1.116:8000/api/wallet/dashboard/', { headers });
                 const dataDash = await resDash.json();
                 setDashboardData(dataDash);
 
@@ -189,7 +230,7 @@ const UserDashboard = () => {
         const token = localStorage.getItem('accessToken');
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/transacciones/crear/', {
+            const response = await fetch('http://192.168.1.116:8000/api/transacciones/crear/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -204,10 +245,10 @@ const UserDashboard = () => {
                 setMensaje({ type: 'success', text: '¡Solicitud enviada con éxito!' });
                 // Recargar historial y dashboard
                 const headers = { 'Authorization': `Bearer ${token}` };
-                const resHist = await fetch('http://127.0.0.1:8000/api/transacciones/historial/', { headers });
+                const resHist = await fetch('http://192.168.1.116:8000/api/transacciones/historial/', { headers });
                 setHistorial(await resHist.json());
 
-                const resDash = await fetch('http://127.0.0.1:8000/api/wallet/dashboard/', { headers });
+                const resDash = await fetch('http://192.168.1.116:8000/api/wallet/dashboard/', { headers });
                 setDashboardData(await resDash.json());
 
             } else {
@@ -258,7 +299,7 @@ const UserDashboard = () => {
                 return;
             }
 
-            const response = await fetch('http://127.0.0.1:8000/api/transactions/exportar_excel/', {
+            const response = await fetch('http://192.168.1.116:8000/api/transactions/exportar_excel/', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -293,31 +334,41 @@ const UserDashboard = () => {
             {/* NAVBAR */}
             <nav className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center gap-2">
-                            <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm" />
-                            <span className="font-bold text-xl tracking-tight">Mi Portafolio</span>
+                    <div className="flex items-center justify-between h-20">
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 p-2 pr-4 bg-slate-800/80 rounded-xl border border-slate-700/50 shadow-sm">
+                                <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm" />
+                                <span className="font-bold text-sm tracking-wide text-slate-200">Mi Portafolio</span>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-6">
                             <button
                                 onClick={() => setIsProfileOpen(true)}
-                                className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700 group"
+                                className="flex items-center gap-4 pl-4 pr-2 py-1.5 rounded-full hover:bg-slate-800/50 transition-all border border-transparent hover:border-slate-700 group"
                             >
                                 <div className="text-right hidden sm:block">
-                                    <p className="text-xs font-bold text-white leading-none">{usuario?.name || 'Usuario'}</p>
-                                    <p className="text-[10px] text-slate-500 font-medium leading-tight">Mi Cuenta</p>
+                                    <p className="text-sm font-bold text-slate-200 leading-none group-hover:text-white transition-colors">{usuario?.name || 'Usuario'}</p>
+                                    <p className="text-[11px] text-cyan-500 font-medium leading-tight mt-1">Ver Perfil</p>
                                 </div>
-                                <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-slate-700 bg-slate-800 flex items-center justify-center group-hover:border-cyan-500 transition-colors">
+                                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-700 bg-slate-800 flex items-center justify-center group-hover:border-cyan-500 shadow-md transition-all">
                                     {usuario?.avatar ? (
                                         <img src={usuario.avatar} alt="Avatar" className="w-full h-full object-cover" />
                                     ) : (
-                                        <User className="h-4 w-4 text-slate-400" />
+                                        <User className="h-5 w-5 text-slate-400" />
                                     )}
                                 </div>
                             </button>
-                            <div className="h-6 w-px bg-slate-800" />
-                            <button onClick={() => { localStorage.clear(); window.location.href = '/'; }} className="flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors text-sm font-medium">
-                                <LogOut className="h-4 w-4" /> Cerrar Sesión
+
+                            <div className="h-8 w-px bg-slate-800/50" />
+
+                            <button
+                                onClick={() => { localStorage.clear(); window.location.href = '/'; }}
+                                className="group flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors text-sm font-medium px-4 py-2 rounded-xl hover:bg-red-500/10"
+                            >
+                                <div className="p-1.5 rounded-md bg-slate-800 text-slate-500 group-hover:bg-red-500 group-hover:text-white transition-all">
+                                    <LogOut className="h-4 w-4" />
+                                </div>
+                                <span className="hidden sm:inline">Cerrar Sesión</span>
                             </button>
                         </div>
                     </div>
@@ -519,7 +570,7 @@ const UserDashboard = () => {
 
                     {/* --- COLUMNA DERECHA: HISTORIAL --- */}
                     <div className="lg:col-span-2">
-                        <div className="flex items-center justify-between mb-6">
+                        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
                             <h2 className="text-xl font-bold flex items-center gap-2">
                                 <History className="text-cyan-400" /> Historial de Transacciones
                             </h2>
@@ -531,45 +582,123 @@ const UserDashboard = () => {
                             </button>
                         </div>
 
-                        <div className="bg-slate-800/30 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-950/50 border-b border-slate-800">
-                                    <tr>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Estado</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase">Moneda</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase text-right">Monto</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase text-right">Total USD</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase text-right">Fecha</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-800">
-                                    {historial.map((tx) => (
-                                        <tr key={tx.id} className="hover:bg-slate-800/50">
-                                            <td className="px-6 py-4">
-                                                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${tx.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                                    tx.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                                                        'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                                                    }`}>
-                                                    {tx.status === 'pending' ? 'PENDIENTE' : tx.status === 'approved' ? 'APROBADO' : 'RECHAZADO'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 flex items-center gap-2">
-                                                {tx.type === 'buy' ? <ArrowDownLeft className="h-4 w-4 text-emerald-500" /> : <ArrowUpRight className="h-4 w-4 text-red-500" />}
-                                                <span className="font-bold text-slate-200">{tx.simbolo_moneda}</span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right font-mono text-slate-300">{tx.amount_crypto}</td>
-                                            <td className="px-6 py-4 text-right font-bold text-slate-100">${tx.amount_usd}</td>
-                                            <td className="px-6 py-4 text-right text-xs text-slate-500">
-                                                {new Date(tx.created_at).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {historial.length === 0 && (
-                                        <tr><td colSpan="5" className="p-8 text-center text-slate-500">No hay movimientos aún.</td></tr>
-                                    )}
-                                </tbody>
-                            </table>
+                        {/* FILTROS */}
+                        <div className="mb-6 flex flex-col sm:flex-row gap-3">
+                            <div className="bg-slate-800/50 border border-slate-700/50 p-1 rounded-lg flex overflow-x-auto">
+                                <button
+                                    onClick={() => setFilterStatus('all')}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${filterStatus === 'all' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+                                >
+                                    Todas
+                                </button>
+                                <button
+                                    onClick={() => setFilterStatus('pending')}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${filterStatus === 'pending' ? 'bg-orange-500/20 text-orange-400 shadow ring-1 ring-orange-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                                >
+                                    Pendientes
+                                </button>
+                                <button
+                                    onClick={() => setFilterStatus('approved')}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${filterStatus === 'approved' ? 'bg-emerald-500/20 text-emerald-400 shadow ring-1 ring-emerald-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                                >
+                                    Aprobadas
+                                </button>
+                                <button
+                                    onClick={() => setFilterStatus('rejected')}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${filterStatus === 'rejected' ? 'bg-red-500/20 text-red-400 shadow ring-1 ring-red-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                                >
+                                    Rechazadas
+                                </button>
+                            </div>
+
+                            <div className="bg-slate-800/50 border border-slate-700/50 p-1 rounded-lg flex overflow-x-auto">
+                                <button
+                                    onClick={() => setFilterType('all')}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${filterType === 'all' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+                                >
+                                    Todos
+                                </button>
+                                <button
+                                    onClick={() => setFilterType('buy')}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${filterType === 'buy' ? 'bg-emerald-500/20 text-emerald-400 shadow ring-1 ring-emerald-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                                >
+                                    Compras
+                                </button>
+                                <button
+                                    onClick={() => setFilterType('sell')}
+                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${filterType === 'sell' ? 'bg-cyan-500/20 text-cyan-400 shadow ring-1 ring-cyan-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                                >
+                                    Ventas
+                                </button>
+                            </div>
                         </div>
+
+                        {/* VISTA DE TARJETAS (GRID) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {filteredHistorial.map((tx) => (
+                                <div
+                                    key={tx.id}
+                                    onClick={() => setSelectedTx(tx)}
+                                    className="bg-slate-800/30 border border-slate-700/50 rounded-2xl p-4 hover:bg-slate-800/50 transition-all cursor-pointer group flex items-start justify-between"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {/* ICONO TIPO TRANSACCION */}
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm ${tx.type === 'buy'
+                                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                            : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                            }`}>
+                                            {tx.type === 'buy' ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
+                                        </div>
+
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-slate-200">{tx.simbolo_moneda}</span>
+                                                <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${tx.type === 'buy' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-cyan-500/10 text-cyan-500 border-cyan-500/20'}`}>
+                                                    {tx.type === 'buy' ? 'Compra' : 'Venta'}
+                                                </span>
+                                            </div>
+                                            <span className="text-xs text-slate-500 font-medium">
+                                                {new Date(tx.created_at).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-end gap-1">
+                                        {/* ESTADO CON ICONOS SOLICITADOS */}
+                                        {tx.status === 'approved' && (
+                                            <div title="Aprobada" className="text-emerald-500">
+                                                <CheckCircle2 className="h-5 w-5" />
+                                            </div>
+                                        )}
+                                        {tx.status === 'pending' && (
+                                            <div title="Pendiente" className="text-orange-400">
+                                                <Clock className="h-5 w-5" />
+                                            </div>
+                                        )}
+                                        {tx.status === 'rejected' && (
+                                            <div title="Rechazada" className="text-red-500">
+                                                <XCircle className="h-5 w-5" />
+                                            </div>
+                                        )}
+
+                                        <div className="text-right mt-1">
+                                            <div className="font-bold text-slate-100 text-sm">
+                                                $ {Number(tx.amount_usd).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </div>
+                                            <div className="font-mono text-[10px] text-slate-400">
+                                                {Number(tx.amount_crypto).toLocaleString('es-ES', { maximumFractionDigits: 8 })} {tx.simbolo_moneda}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {filteredHistorial.length === 0 && (
+                            <div className="p-12 text-center text-slate-500 bg-slate-800/20 rounded-2xl border border-slate-800 border-dashed">
+                                {historial.length === 0 ? "No hay movimientos aún." : "No se encontraron transacciones con estos filtros."}
+                            </div>
+                        )}
                     </div>
 
                 </div>
@@ -582,6 +711,100 @@ const UserDashboard = () => {
                     </div>
                 </div>
             </main>
+
+            {/* MODAL DETALLE DE TRANSACCIÓN */}
+            {selectedTx && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-800/50">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                Detalle de Transacción
+                            </h3>
+                            <button
+                                onClick={() => setSelectedTx(null)}
+                                className="text-slate-400 hover:text-white transition-colors"
+                            >
+                                <XCircle className="h-6 w-6" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-6">
+                            {/* ESTADO GRANDE */}
+                            <div className="flex flex-col items-center justify-center py-4">
+                                {selectedTx.status === 'approved' && (
+                                    <div className="h-16 w-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-3 border border-emerald-500/20">
+                                        <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                                    </div>
+                                )}
+                                {selectedTx.status === 'pending' && (
+                                    <div className="h-16 w-16 bg-orange-500/10 rounded-full flex items-center justify-center mb-3 border border-orange-500/20">
+                                        <Clock className="h-8 w-8 text-orange-400" />
+                                    </div>
+                                )}
+                                {selectedTx.status === 'rejected' && (
+                                    <div className="h-16 w-16 bg-red-500/10 rounded-full flex items-center justify-center mb-3 border border-red-500/20">
+                                        <XCircle className="h-8 w-8 text-red-500" />
+                                    </div>
+                                )}
+                                <span className={`text-lg font-bold uppercase tracking-wider ${selectedTx.status === 'approved' ? 'text-emerald-400' :
+                                    selectedTx.status === 'pending' ? 'text-orange-400' : 'text-red-400'
+                                    }`}>
+                                    {selectedTx.status === 'approved' ? 'Aprobada' :
+                                        selectedTx.status === 'pending' ? 'Pendiente' : 'Rechazada'}
+                                </span>
+                            </div>
+
+                            {/* INFO GRID */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-slate-800/30 p-3 rounded-lg border border-slate-700/50">
+                                    <p className="text-xs text-slate-500 mb-1">Tipo</p>
+                                    <p className={`font-bold uppercase ${selectedTx.type === 'buy' ? 'text-emerald-400' : 'text-cyan-400'}`}>
+                                        {selectedTx.type === 'buy' ? 'Compra' : 'Venta'}
+                                    </p>
+                                </div>
+                                <div className="bg-slate-800/30 p-3 rounded-lg border border-slate-700/50">
+                                    <p className="text-xs text-slate-500 mb-1">Moneda</p>
+                                    <p className="font-bold text-white">{selectedTx.simbolo_moneda}</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                                    <span className="text-slate-400 text-sm">Monto Cripto</span>
+                                    <span className="text-white font-mono font-medium">
+                                        {Number(selectedTx.amount_crypto).toLocaleString('es-ES', { maximumFractionDigits: 8 })}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                                    <span className="text-slate-400 text-sm">Valor USD</span>
+                                    <span className="text-white font-bold text-lg">
+                                        $ {Number(selectedTx.amount_usd).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-b border-slate-800">
+                                    <span className="text-slate-400 text-sm">ID Transacción</span>
+                                    <span className="text-slate-500 font-mono text-xs">#{selectedTx.id}</span>
+                                </div>
+                                <div className="flex justify-between items-center py-2">
+                                    <span className="text-slate-400 text-sm">Fecha</span>
+                                    <span className="text-slate-300 text-sm">
+                                        {new Date(selectedTx.created_at).toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-4 bg-slate-800/50 border-t border-slate-800 flex justify-center">
+                            <button
+                                onClick={() => setSelectedTx(null)}
+                                className="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-bold transition-all"
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <GestionModal
                 isOpen={modalError.isOpen}

@@ -29,11 +29,22 @@ const AdminDashboard = () => {
     });
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+    const [filterStatus, setFilterStatus] = useState('pending');
+    const [filterType, setFilterType] = useState('all');
+
     // 1. Aca se cargan los datos reales de nuestro backend (Django)
     const cargarTransacciones = async () => {
         try {
+            setLoading(true);
             const token = localStorage.getItem('accessToken');
-            const response = await fetch('http://127.0.0.1:8000/api/admin/transacciones/', {
+
+            // Construimos la URL con filtros
+            let url = `http://192.168.1.116:8000/api/admin/transacciones/?status=${filterStatus}`;
+            if (filterType !== 'all') {
+                url += `&type=${filterType}`;
+            }
+
+            const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -77,7 +88,22 @@ const AdminDashboard = () => {
         const localUser = JSON.parse(localStorage.getItem('usuario') || '{}');
         setUsuario(localUser);
         cargarTransacciones();
-    }, []);
+    }, [filterStatus, filterType]); // Recargar cuando cambien los filtros
+
+    // --- LÓGICA DE PAGINACIÓN ---
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10; // Cantidad de items por página
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentTransactions = transacciones.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(transacciones.length / itemsPerPage);
+
+    // Resetear a la página 1 cuando cambian los filtros o los datos
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filterStatus, filterType, transacciones]);
+
 
     // 2. Funcion para iniciar el proceso de aprobación/rechazo (Abre Modal)
     const procesarTransaccion = (id, accion) => {
@@ -100,7 +126,7 @@ const AdminDashboard = () => {
         try {
             const token = localStorage.getItem('accessToken');
             // Llamamos al endpoint con el ID y la acción
-            const response = await fetch(`http://127.0.0.1:8000/api/admin/transacciones/${id}/`, {
+            const response = await fetch(`http://192.168.1.116:8000/api/admin/transacciones/${id}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -153,7 +179,7 @@ const AdminDashboard = () => {
             }
 
             // Llamamos al nuevo endpoint de admin
-            const response = await fetch('http://127.0.0.1:8000/api/transactions/exportar_todo_excel/', {
+            const response = await fetch('http://192.168.1.116:8000/api/transactions/exportar_todo_excel/', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -191,38 +217,39 @@ const AdminDashboard = () => {
             {/* NAVBAR */}
             <nav className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center gap-2">
-                            <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover shadow-sm" />
-                            <span className="font-bold text-xl tracking-tight">
-                                CryptoManager <span className="text-slate-500 text-sm font-normal ml-2">| Admin</span>
-                            </span>
+                    <div className="flex items-center justify-between h-20">
+                        {/* Logo y Título */}
+                        <div className="flex items-center gap-3">
+                            <div className="bg-slate-800/80 p-2 pr-4 rounded-xl border border-slate-700/50 flex items-center gap-3">
+                                <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg object-cover" />
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-sm tracking-wide text-slate-200 leading-none">CryptoManager</span>
+                                    <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-500 leading-none mt-0.5">Admin</span>
+                                </div>
+                            </div>
                         </div>
 
+                        {/* Menú de Usuario */}
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setIsProfileOpen(true)}
-                                className="flex items-center gap-3 px-3 py-1.5 rounded-full hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700 group"
+                                className="group flex items-center gap-3 pl-4 pr-1.5 py-1.5 bg-slate-800/50 hover:bg-slate-800 rounded-full border border-slate-700/50 hover:border-slate-600 transition-all"
                             >
                                 <div className="text-right hidden sm:block">
-                                    <p className="text-xs font-bold text-white leading-none">{usuario?.name || 'Admin'}</p>
-                                    <p className="text-[10px] text-slate-500 font-medium leading-tight">Administrador</p>
+                                    <p className="text-xs font-bold text-slate-200 group-hover:text-white transition-colors">{usuario?.first_name || usuario?.username || 'Usuario'}</p>
+                                    <p className="text-[10px] text-cyan-400 font-medium">Administrador</p>
                                 </div>
-                                <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-slate-700 bg-slate-800 flex items-center justify-center group-hover:border-cyan-500 transition-colors">
-                                    {usuario?.avatar ? (
-                                        <img src={usuario.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <User className="h-4 w-4 text-slate-400" />
-                                    )}
+                                <div className="h-8 w-8 bg-slate-700 rounded-full flex items-center justify-center overflow-hidden ring-2 ring-slate-800 group-hover:ring-cyan-500/50 transition-all">
+                                    <User className="h-4 w-4 text-slate-300" />
                                 </div>
                             </button>
-                            <div className="h-6 w-px bg-slate-800" />
+
                             <button
                                 onClick={() => { localStorage.clear(); window.location.href = '/'; }}
-                                className="flex items-center gap-2 text-slate-400 hover:text-red-400 transition-colors text-sm font-medium px-3 py-2 rounded-lg hover:bg-slate-800"
+                                className="p-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl transition-all border border-red-500/20"
+                                title="Cerrar Sesión"
                             >
-                                <LogOut className="h-4 w-4" />
-                                Cerrar Sesión
+                                <LogOut className="h-5 w-5" />
                             </button>
                         </div>
                     </div>
@@ -260,6 +287,59 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
+                {/* FILTROS */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Filtro Estado */}
+                    <div className="bg-slate-800/50 border border-slate-700/50 p-1 rounded-lg flex">
+                        <button
+                            onClick={() => setFilterStatus('all')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${filterStatus === 'all' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            Todas
+                        </button>
+                        <button
+                            onClick={() => setFilterStatus('pending')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${filterStatus === 'pending' ? 'bg-orange-500/20 text-orange-400 shadow ring-1 ring-orange-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            Pendientes
+                        </button>
+                        <button
+                            onClick={() => setFilterStatus('approved')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${filterStatus === 'approved' ? 'bg-emerald-500/20 text-emerald-400 shadow ring-1 ring-emerald-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            Aprobadas
+                        </button>
+                        <button
+                            onClick={() => setFilterStatus('rejected')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${filterStatus === 'rejected' ? 'bg-red-500/20 text-red-400 shadow ring-1 ring-red-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            Rechazadas
+                        </button>
+                    </div>
+
+                    {/* Filtro Tipo */}
+                    <div className="bg-slate-800/50 border border-slate-700/50 p-1 rounded-lg flex">
+                        <button
+                            onClick={() => setFilterType('all')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${filterType === 'all' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            Todos
+                        </button>
+                        <button
+                            onClick={() => setFilterType('buy')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${filterType === 'buy' ? 'bg-emerald-500/20 text-emerald-400 shadow ring-1 ring-emerald-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            Compras
+                        </button>
+                        <button
+                            onClick={() => setFilterType('sell')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${filterType === 'sell' ? 'bg-cyan-500/20 text-cyan-400 shadow ring-1 ring-cyan-500/50' : 'text-slate-400 hover:text-slate-200'}`}
+                        >
+                            Ventas
+                        </button>
+                    </div>
+                </div>
+
                 {/* NOTE: Eliminamos la alerta roja inline que estaba aquí */}
 
                 {/* TABLA DE TRANSACCIONES */}
@@ -269,77 +349,207 @@ const AdminDashboard = () => {
                             Cargando transacciones...
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-950/50 border-b border-slate-800">
-                                    <tr>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">ID</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Usuario</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Tipo</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Monto Crypto</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Total USD</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-800">
-                                    {transacciones.length > 0 ? transacciones.map((tx) => (
-                                        <tr key={tx.id} className="hover:bg-slate-800/50 transition-colors group">
-                                            <td className="px-6 py-4 text-slate-500 font-mono text-xs">#{tx.id}</td>
-                                            <td className="px-6 py-4">
-                                                <div className="font-medium text-slate-200">{tx.email_usuario}</div>
-                                                <div className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString()}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${tx.type === 'buy'
-                                                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                                    : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
-                                                    }`}>
-                                                    {tx.type === 'buy' ? <ArrowDownLeft className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
-                                                    {tx.type === 'buy' ? 'COMPRA' : 'VENTA'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right font-mono text-slate-300">
-                                                {tx.amount_crypto} <span className="text-slate-500 ml-1">{tx.simbolo_moneda}</span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right font-bold text-slate-100">
-                                                ${tx.amount_usd}
-                                            </td>
-                                            <td className="px-6 py-4">
-
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <button
-                                                        onClick={() => procesarTransaccion(tx.id, 'aprobar')}
-                                                        title="Aprobar"
-                                                        className="p-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-lg transition-all border border-emerald-500/20"
-                                                    >
-                                                        <CheckCircle2 className="h-5 w-5" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => procesarTransaccion(tx.id, 'rechazar')}
-                                                        title="Rechazar"
-                                                        className="p-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all border border-red-500/20"
-                                                    >
-                                                        <XCircle className="h-5 w-5" />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )) : (
+                        <>
+                            {/* --- VISTA DE ESCRITORIO (TABLA) --- */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="bg-slate-950/50 border-b border-slate-800">
                                         <tr>
-                                            <td colSpan="6" className="py-16 text-center">
-                                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-4">
-                                                    <Search className="h-8 w-8 text-slate-600" />
-                                                </div>
-                                                <h3 className="text-lg font-medium text-slate-300">Todo al día</h3>
-                                                <p className="text-slate-500 max-w-sm mx-auto mt-2">
-                                                    No hay transacciones pendientes de revisión en este momento.
-                                                </p>
-                                            </td>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">ID</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Usuario</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Tipo</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Monto Crypto</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Total USD</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Acciones/Estado</th>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-800">
+                                        {currentTransactions.length > 0 ? currentTransactions.map((tx) => (
+                                            <tr key={tx.id} className="hover:bg-slate-800/50 transition-colors group">
+                                                <td className="px-6 py-4 text-slate-500 font-mono text-xs">#{tx.id}</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="font-medium text-slate-200">{tx.email_usuario}</div>
+                                                    <div className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString()}</div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${tx.type === 'buy'
+                                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                                            : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+                                                            }`}>
+                                                            {tx.type === 'buy' ? <ArrowDownLeft className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
+                                                        </div>
+                                                        <span className={`text-xs font-bold uppercase ${tx.type === 'buy' ? 'text-emerald-400' : 'text-cyan-400'}`}>
+                                                            {tx.type === 'buy' ? 'Compra' : 'Venta'}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 text-right font-mono text-slate-300">
+                                                    {Number(tx.amount_crypto).toLocaleString('es-ES', { maximumFractionDigits: 8 })} <span className="text-slate-500 ml-1">{tx.simbolo_moneda}</span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right font-bold text-slate-100">
+                                                    ${Number(tx.amount_usd).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        {tx.status === 'pending' ? (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => procesarTransaccion(tx.id, 'aprobar')}
+                                                                    title="Aprobar"
+                                                                    className="p-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-lg transition-all border border-emerald-500/20"
+                                                                >
+                                                                    <CheckCircle2 className="h-5 w-5" />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => procesarTransaccion(tx.id, 'rechazar')}
+                                                                    title="Rechazar"
+                                                                    className="p-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all border border-red-500/20"
+                                                                >
+                                                                    <XCircle className="h-5 w-5" />
+                                                                </button>
+                                                            </>
+                                                        ) : (
+                                                            <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${tx.status === 'approved'
+                                                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                                                                : 'bg-red-500/10 border-red-500/20 text-red-400'
+                                                                }`}>
+                                                                {tx.status === 'approved' ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                                                                <span className="text-xs font-bold uppercase">
+                                                                    {tx.status === 'approved' ? 'Aprobada' : 'Rechazada'}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )) : (
+                                            <tr>
+                                                <td colSpan="6" className="py-16 text-center">
+                                                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-4">
+                                                        <Search className="h-8 w-8 text-slate-600" />
+                                                    </div>
+                                                    <h3 className="text-lg font-medium text-slate-300">Sin resultados</h3>
+                                                    <p className="text-slate-500 max-w-sm mx-auto mt-2">
+                                                        No hay transacciones que coincidan con los filtros actuales.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* --- VISTA DE MÓVIL (TARJETAS) --- */}
+                            <div className="md:hidden flex flex-col divide-y divide-slate-800/50">
+                                {currentTransactions.length > 0 ? currentTransactions.map((tx) => (
+                                    <div key={tx.id} className="p-4 bg-slate-800/10 flex flex-col gap-4">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex gap-3">
+                                                <div className={`p-2 rounded-lg ${tx.type === 'buy' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-cyan-500/10 text-cyan-400'}`}>
+                                                    {tx.type === 'buy' ? <ArrowDownLeft className="h-5 w-5" /> : <ArrowUpRight className="h-5 w-5" />}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-slate-200 text-sm">
+                                                        {tx.type === 'buy' ? 'Compra' : 'Venta'} de {tx.simbolo_moneda}
+                                                    </div>
+                                                    <div className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString()}</div>
+                                                    <div className="text-xs text-slate-400 mt-1">{tx.email_usuario}</div>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="font-bold text-slate-100">${Number(tx.amount_usd).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                                <div className="text-xs font-mono text-slate-500">{Number(tx.amount_crypto).toLocaleString('es-ES', { maximumFractionDigits: 8 })} {tx.simbolo_moneda}</div>
+                                            </div>
+                                        </div>
+
+                                        {tx.status === 'pending' ? (
+                                            <div className="flex gap-2 mt-2">
+                                                <button
+                                                    onClick={() => procesarTransaccion(tx.id, 'aprobar')}
+                                                    className="flex-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 py-2 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all"
+                                                >
+                                                    <CheckCircle2 className="h-4 w-4" /> Aprobar
+                                                </button>
+                                                <button
+                                                    onClick={() => procesarTransaccion(tx.id, 'rechazar')}
+                                                    className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-2 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all"
+                                                >
+                                                    <XCircle className="h-4 w-4" /> Rechazar
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className={`mt-2 py-2 rounded-xl flex items-center justify-center gap-2 border ${tx.status === 'approved'
+                                                ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500'
+                                                : 'bg-red-500/5 border-red-500/20 text-red-500'
+                                                }`}>
+                                                {tx.status === 'approved' ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                                                <span className="font-bold text-sm uppercase">
+                                                    {tx.status === 'approved' ? 'Aprobada' : 'Rechazada'}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )) : (
+                                    <div className="py-12 text-center">
+                                        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-800 mb-3">
+                                            <Search className="h-6 w-6 text-slate-600" />
+                                        </div>
+                                        <p className="text-slate-500">No hay transacciones.</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* --- PAGINACIÓN --- */}
+                            {totalPages > 1 && (
+                                <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <span className="text-xs text-slate-500">
+                                        Mostrando {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, transacciones.length)} de {transacciones.length}
+                                    </span>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                            disabled={currentPage === 1}
+                                            className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 transition-colors"
+                                        >
+                                            Anterior
+                                        </button>
+                                        <div className="flex items-center gap-1 px-2">
+                                            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                                                // Lógica simple para mostrar 5 páginas (se puede mejorar)
+                                                let pageNum = i + 1;
+                                                // Si hay muchas páginas, mostramos un rango cercano
+                                                if (totalPages > 5 && currentPage > 3) {
+                                                    pageNum = currentPage - 2 + i;
+                                                }
+                                                // Ajuste final si se pasa
+                                                if (pageNum > totalPages) return null;
+
+                                                return (
+                                                    <button
+                                                        key={pageNum}
+                                                        onClick={() => setCurrentPage(pageNum)}
+                                                        className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${currentPage === pageNum
+                                                            ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/20'
+                                                            : 'text-slate-500 hover:bg-slate-800'
+                                                            }`}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        <button
+                                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                            disabled={currentPage === totalPages}
+                                            className="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 transition-colors"
+                                        >
+                                            Siguiente
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
 

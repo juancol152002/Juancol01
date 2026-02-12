@@ -7,16 +7,18 @@ export const getMarketData = async () => {
       params: {
         vs_currency: 'usd',
         // IDs correctos para tus 5 monedas
-        ids: 'bitcoin,ethereum,dogecoin,tether,proton', 
+        // IDs correctos para tus 5 monedas
+        ids: 'ripple,bitcoin,ethereum,dogecoin,tether',
         order: 'market_cap_desc',
-        per_page: 10,
+        per_page: 20, // Aumentamos por si acaso
         page: 1,
         sparkline: false,
+        _: new Date().getTime(), // Cache buster
       }
     });
     return response.data;
   } catch (error) {
     console.error("Error en API:", error);
-    return []; 
+    return [];
   }
 };

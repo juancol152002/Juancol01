@@ -63,6 +63,8 @@ python manage.py createsuperuser
 5. Enciende el servidor:
 ```bash
 python manage.py runserver
+###para ver en telefono###
+python manage.py runserver 0.0.0.0:8000
 ```
 Déjalo corriendo. No cierres esta ventana.
 
@@ -82,6 +84,8 @@ npm install
 3. Enciende la página web:
 ```bash 
 npm run dev
+###para ver en telefono###
+npm run dev -- --host
 ```
 Verás un link (usualmente http://localhost:5173). ¡Haz Click para abrirlo!
 

@@ -8,13 +8,15 @@ import bitcoinBg from "./assets/components/bitcoin-bg.jpg";
 import logoImg from "./assets/components/logo.jpg";
 
 const LandingPage = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
   // Configuración para el carrusel infinito
   const tickerAssets = [
     { icon: '₿', name: 'Bitcoin', color: 'bg-orange-500' },
     { icon: '♦', name: 'Ethereum', color: 'bg-indigo-500' },
     { icon: 'Ð', name: 'DOGE', color: 'bg-blue-800' },
     { icon: '$', name: 'USDT', color: 'bg-emerald-500' },
-    { icon: 'X', name: 'XPR', color: 'bg-blue-500' },
+    { icon: 'X', name: 'XRP', color: 'bg-black text-white' },
   ];
 
   return (
@@ -34,6 +36,8 @@ const LandingPage = () => {
                 CryptoManager
               </span>
             </Link>
+
+            {/* Desktop Menu */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
                 <Link to="/mercado" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
@@ -49,8 +53,44 @@ const LandingPage = () => {
                 </Link>
               </div>
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center">
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-slate-300 hover:text-white p-2">
+                {mobileMenuOpen ? (
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden bg-slate-900 border-b border-slate-800 px-2 pt-2 pb-3 space-y-1 sm:px-3 shadow-xl"
+          >
+            <Link to="/mercado" className="text-slate-300 hover:text-cyan-400 block px-3 py-2 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+              Mercado
+            </Link>
+            <Link to="/seguridad" className="text-slate-300 hover:text-cyan-400 block px-3 py-2 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+              Seguridad
+            </Link>
+            <Link to="/login" className="w-full text-left block" onClick={() => setMobileMenuOpen(false)}>
+              <button className="w-full mt-4 bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-3 rounded-lg text-base font-medium transition-all">
+                Iniciar Sesión
+              </button>
+            </Link>
+          </motion.div>
+        )}
       </nav>
 
       {/* --- HERO SECTION --- */}
@@ -77,9 +117,9 @@ const LandingPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="text-5xl md:text-8xl font-extrabold tracking-tight mb-8 text-white"
+            className="text-4xl sm:text-5xl md:text-8xl font-extrabold tracking-tight mb-8 text-white leading-tight"
           >
-            Compra, Vende y Gestiona tus <br />
+            Compra, Vende y Gestiona tus <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
               Criptomonedas
             </span>
@@ -206,10 +246,10 @@ const LandingPage = () => {
                     </div>
                     <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-xs">X</div>
-                        <span className="text-sm font-bold text-white">XPR Network</span>
+                        <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-white font-bold text-xs">X</div>
+                        <span className="text-sm font-bold text-white">XRP</span>
                       </div>
-                      <span className="text-sm font-mono text-emerald-400">+$0.0009</span>
+                      <span className="text-sm font-mono text-emerald-400">+$0.5200</span>
                     </div>
                   </div>
 
@@ -302,36 +342,51 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* --- CÓMO EMPEZAR --- */}
-      <section className="py-24 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Empieza en minutos</h2>
-            <p className="text-slate-400">Tres simples pasos para entrar al mundo cripto.</p>
-          </div>
+      {/* --- SECCIÓN: CÓMO FUNCIONA --- */}
+      <section className="py-20 relative select-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-slate-900/50 backdrop-blur-sm -z-10"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
+            Empieza en minutos
+          </h2>
+          <p className="text-slate-400 text-lg mb-16">Tres simples pasos para entrar al mundo cripto.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-slate-700 to-transparent -translate-y-12"></div>
-            {[
-              { step: "01", title: "Crea tu cuenta", desc: "Regístrate con tus datos básicos y activa tu billetera de seguridad." },
-              { step: "02", title: "Deposita Fondos", desc: "Recibe USDT o conecta tu cuenta bancaria para cargar saldo instantáneamente." },
-              { step: "03", title: "Opera y Gana", desc: "Intercambia activos y monitorea tu crecimiento en tiempo real desde el panel." }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 }}
-                className="relative z-10 flex flex-col items-center text-center group"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-cyan-400 font-bold text-2xl mb-6 group-hover:border-cyan-500 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all">
-                  {item.step}
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed px-4">{item.desc}</p>
-              </motion.div>
-            ))}
+            {/* Línea conectora (Desktop) */}
+            <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-cyan-500/0 via-cyan-500/30 to-cyan-500/0 z-0"></div>
+
+            {/* PASO 1 */}
+            <div className="relative z-10 group cursor-default">
+              <div className="w-24 h-16 mx-auto bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center mb-8 shadow-xl group-hover:border-cyan-500/50 group-hover:shadow-cyan-500/20 transition-all duration-300">
+                <span className="text-xl font-bold text-cyan-400">01</span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">Crea tu cuenta</h3>
+              <p className="text-slate-400 leading-relaxed px-4">
+                Regístrate con tus datos básicos y activa tu billetera de seguridad.
+              </p>
+            </div>
+
+            {/* PASO 2 */}
+            <div className="relative z-10 group cursor-default">
+              <div className="w-24 h-16 mx-auto bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center mb-8 shadow-xl group-hover:border-cyan-500/50 group-hover:shadow-cyan-500/20 transition-all duration-300">
+                <span className="text-xl font-bold text-cyan-400">02</span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">Deposita Fondos</h3>
+              <p className="text-slate-400 leading-relaxed px-4">
+                Recibe USDT o conecta tu cuenta bancaria para cargar saldo instantáneamente.
+              </p>
+            </div>
+
+            {/* PASO 3 */}
+            <div className="relative z-10 group cursor-default">
+              <div className="w-24 h-16 mx-auto bg-slate-800 border border-slate-700 rounded-2xl flex items-center justify-center mb-8 shadow-xl group-hover:border-cyan-500/50 group-hover:shadow-cyan-500/20 transition-all duration-300">
+                <span className="text-xl font-bold text-cyan-400">03</span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">Opera y Gana</h3>
+              <p className="text-slate-400 leading-relaxed px-4">
+                Intercambia activos y monitorea tu crecimiento en tiempo real desde el panel.
+              </p>
+            </div>
           </div>
         </div>
       </section>

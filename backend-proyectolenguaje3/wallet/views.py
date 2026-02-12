@@ -41,9 +41,19 @@ class AdminTransaccionView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        # Traer solo las pendientes
-        pendientes = Transaccion.objects.filter(status='pending').order_by('-created_at')
-        serializer = TransaccionAdminSerializer(pendientes, many=True)
+        queryset = Transaccion.objects.all().order_by('-created_at')
+        
+        # Filtros opcionales
+        status = request.query_params.get('status')
+        tipo = request.query_params.get('type') # 'buy' o 'sell'
+
+        if status and status != 'all':
+            queryset = queryset.filter(status=status)
+        
+        if tipo and tipo != 'all':
+            queryset = queryset.filter(type=tipo)
+
+        serializer = TransaccionAdminSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def post(self, request, pk):

@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import LandingPage from './LandingPage';
 import AuthPage from './AuthPage';
 import Dashboard from './Dashboard';
@@ -15,9 +15,21 @@ import Terminos from './pages/terminos';
 
 import ResetPasswordPage from './ResetPasswordPage';
 
+// Componente para hacer scroll al inicio al cambiar de ruta
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
 const App = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
 
       <Routes>
         {/* Ruta principal */}

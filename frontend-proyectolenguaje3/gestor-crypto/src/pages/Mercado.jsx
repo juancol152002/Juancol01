@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 // Busca tu línea de lucide-react y déjala así:
 import { TrendingUp, Loader2, BarChart3, Instagram, Send, MessageCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { getMarketData } from '../Services/api';
 
 // --- COMPONENTES ---
@@ -13,6 +14,7 @@ const Mercado = () => {
   const [cryptos, setCryptos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Estado para la moneda seleccionada
   const [selectedCoin, setSelectedCoin] = useState({
@@ -27,7 +29,7 @@ const Mercado = () => {
 
     if (data && data.length > 0) {
       // 1. Filtramos solo tus 5 monedas elegidas
-      const allowed = ['btc', 'eth', 'doge', 'usdt', 'xpr'];
+      const allowed = ['btc', 'eth', 'doge', 'usdt', 'xrp'];
 
       const filtered = data.filter(coin =>
         allowed.includes(coin.symbol.toLowerCase())
@@ -56,6 +58,7 @@ const Mercado = () => {
     <div style={{ backgroundColor: '#050a18', minHeight: '100vh', color: 'white' }}>
 
       {/* --- NAVBAR --- */}
+      {/* --- NAVBAR --- */}
       <nav className="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -65,9 +68,13 @@ const Mercado = () => {
                 CryptoManager
               </span>
             </Link>
+
+            {/* Desktop Menu */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-
+                <Link to="/mercado" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
+                  Mercado
+                </Link>
                 <Link to="/seguridad" className="hover:text-cyan-400 transition-colors px-3 py-2 rounded-md text-sm font-medium">
                   Seguridad
                 </Link>
@@ -78,8 +85,44 @@ const Mercado = () => {
                 </Link>
               </div>
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden flex items-center">
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-slate-300 hover:text-white p-2">
+                {mobileMenuOpen ? (
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden bg-slate-900 border-b border-slate-800 px-2 pt-2 pb-3 space-y-1 sm:px-3 shadow-xl"
+          >
+            <Link to="/mercado" className="text-slate-300 hover:text-cyan-400 block px-3 py-2 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+              Mercado
+            </Link>
+            <Link to="/seguridad" className="text-slate-300 hover:text-cyan-400 block px-3 py-2 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+              Seguridad
+            </Link>
+            <Link to="/login" className="w-full text-left block" onClick={() => setMobileMenuOpen(false)}>
+              <button className="w-full mt-4 bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-3 rounded-lg text-base font-medium transition-all">
+                Iniciar Sesión
+              </button>
+            </Link>
+          </motion.div>
+        )}
       </nav>
 
 
@@ -158,8 +201,8 @@ const Mercado = () => {
             <div className="rounded-xl overflow-hidden border border-slate-800 mb-6 bg-slate-900/50">
               <CryptoChart
                 symbol={
-                  selectedCoin.symbol.toLowerCase() === 'xpr'
-                    ? "KUCOIN:XPRUSDT"
+                  selectedCoin.symbol.toLowerCase() === 'xrp'
+                    ? "BINANCE:XRPUSDT"
                     : selectedCoin.symbol.toLowerCase() === 'usdt'
                       ? "BINANCE:USDTUSD" // Cambio clave: USDT contra USD real para que funcione
                       : `${selectedCoin.symbol.toUpperCase()}USDT`
