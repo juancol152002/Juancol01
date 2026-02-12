@@ -277,11 +277,21 @@ const AdminDashboard = () => {
 
                     {/* Pequeña estadística (Decorativo) */}
                     <div className="bg-slate-800/50 border border-slate-700/50 px-4 py-2 rounded-lg flex items-center gap-3">
-                        <div className="bg-orange-500/10 p-2 rounded-full">
-                            <Clock className="h-4 w-4 text-orange-400" />
+                        <div className={`p-2 rounded-full ${filterStatus === 'all' ? 'bg-cyan-500/10' :
+                                filterStatus === 'approved' ? 'bg-emerald-500/10' :
+                                    filterStatus === 'rejected' ? 'bg-red-500/10' : 'bg-orange-500/10'
+                            }`}>
+                            {filterStatus === 'all' ? <TrendingUp className="h-4 w-4 text-cyan-400" /> :
+                                filterStatus === 'approved' ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> :
+                                    filterStatus === 'rejected' ? <XCircle className="h-4 w-4 text-red-400" /> :
+                                        <Clock className="h-4 w-4 text-orange-400" />}
                         </div>
                         <div>
-                            <div className="text-xs text-slate-400 uppercase font-bold">Pendientes</div>
+                            <div className="text-xs text-slate-400 uppercase font-bold">
+                                {filterStatus === 'all' ? 'Total' :
+                                    filterStatus === 'approved' ? 'Aprobadas' :
+                                        filterStatus === 'rejected' ? 'Rechazadas' : 'Pendientes'}
+                            </div>
                             <div className="text-xl font-bold text-slate-100">{transacciones.length}</div>
                         </div>
                     </div>
