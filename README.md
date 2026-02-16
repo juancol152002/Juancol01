@@ -15,7 +15,8 @@ Para correr este proyecto necesitas tener instalado:
     * *IMPORTANTE:* Al instalar en Windows, marca la casilla **"Add Python to PATH"**.
 2.  **Node.js** (LTS) - [Descargar](https://nodejs.org/)
 3.  **Git** - Para clonar este repositorio.
-
+---
+ **version mobile** - para que la version mobile funcione tienen que estar conectados al mismo internet pa pc/laptop donde se ejecute y el telefono
 ---
 
 ## Guía de Instalación Rápida
